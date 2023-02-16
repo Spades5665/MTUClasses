@@ -25,8 +25,7 @@ int main(int argc, char *argv[]) {
     int iterations;        //-- Recurrence iteration counters
     int pheight;           //-- Counter for loop over pixels down imaginary axis
     int pwidth;            //-- Counter for loop over pixels across real axis
-    int i;                 //-- Loop index for recurrence relation
-    FILE *fp;              //-- Descriptor for file to hold image
+    int i;                 //-- Loop index for recurrence relation5
     char printBuf[PRINTBUFSIZE];    //-- Output buffer
 
     // Checks for correct number of inputs
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
     //printf("\n");
     for (int rows = 0; rows < hpixels; rows++) {
         for (int columns = 0; columns < wpixels; columns++) {
-            pointCounts[columns][rows] = 72;
+            pointCounts[columns][rows] = 2000;
             //printf("%d ", pointCounts[rows][columns]);
         }
         //printf("\n");

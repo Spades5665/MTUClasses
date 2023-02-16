@@ -2,7 +2,7 @@
 #include <stdlib.h>
 int *iterMap(int **pointCounts,int width,int height, int maxiterations) {
 
-    int i, j, total;
+    int i, j;
     int *iterationMap;
 
     iterationMap = malloc(maxiterations * sizeof(int));

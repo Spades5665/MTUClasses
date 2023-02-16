@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
+#include "pmandel-2.h"
 
 int main(int argc, char* argv[]) {
 
@@ -141,8 +142,6 @@ int main(int argc, char* argv[]) {
 
         // Detaches from shared memory
         shmdt(pointCounts);
-
-        exit(0);
         
         // Create Final image
         FILE * finalFile = fopen(argv[6], "wb");
@@ -155,12 +154,12 @@ int main(int argc, char* argv[]) {
         fprintf(finalFile, "P6\n%d %d\n255\n", atoi(argv[5]), atoi(argv[5]));
 
         // Set parent file values
-        // TO DO
+        int *iterationMap = iterMap(pointCounts, pixels, pixels, atoi(argv[4]));
+        int *iterSpecMap = iterSpectrumMap(iterationMap, atoi(argv[4]));
+        //spectrumToRGB(pointCounts, pixels, pixels, atoi(argv[4]), iterSpecMap, finalFile);
 
         // Closes parent file
         fclose(finalFile);
-
-
         
         // Buffer line
         printf("\n");
