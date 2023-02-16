@@ -56,14 +56,14 @@ int main(int argc, char* argv[]) {
         }
         
         // Creates Shared Memory
-        int memID = shmget(memKey, pixels * pixels * sizeof(int[pixels][pixels]), IPC_CREAT | 0666);
+        int memID = shmget(memKey, (sizeof(int *) * pixels) + (sizeof(int) * pixels * pixels), IPC_CREAT | 0666);
 
         // Makes sure memory creation worked
         if (memID < 0) {
             printf("\nFailed to create shared memory in pmandel!\n\n");
             exit(1);
         }
-        
+
         // Attaches Shared Memory to pointCounts
         pointCounts = (int**) shmat(memID, NULL, 0);
 
@@ -72,6 +72,8 @@ int main(int argc, char* argv[]) {
             printf("\nFailed to attach memory in pmandel!\n\n");
             exit(1);
         }
+
+
         
         // Creates the children
         for (int i = 0; i < numChildren; i++) {
@@ -96,7 +98,7 @@ int main(int argc, char* argv[]) {
             double height = atof(argv[3]) * ratio;
 
             // Height of child picture in pixels
-            int hpixels = atof(argv[5]) * ratio;
+            int hpixels = atoi(argv[5]) * ratio;
             
             // Converts values to strings
             char imag[10];
@@ -105,7 +107,7 @@ int main(int argc, char* argv[]) {
             
             sprintf(imag, "%f", imagL);
             sprintf(heig, "%f", height);
-            sprintf(hpix, "%f", hpixels);
+            sprintf(hpix, "%d", hpixels);
 
             // Array for mandel
             char *args[] = {"./mandelc", argv[1], imag, argv[3], heig, argv[4], argv[5], hpix, (char*) NULL};
@@ -125,14 +127,22 @@ int main(int argc, char* argv[]) {
             wait(NULL);
         }
 
+        for (int i = 0; i < pixels; i++){
+            unsigned long long rowstart = (unsigned long long) pointCounts + (pixels * sizeof(int *)) + (i * pixels * sizeof(int));
+            pointCounts[i] = (int *) rowstart;
+        }
+
         printf("\n");
-        for (int r = 0; r < atof(argv[5]) * (1.0 / numChildren); r++) {
+        for (int r = 0; r < atoi(argv[5]) * (1.0 / numChildren); r++) {
             for (int c = 0; c < pixels; c++) {
                 printf("%d ", pointCounts[r][c]);
             }
             printf("\n");
         }
         printf("\n");
+
+        // Detaches from shared memory
+        shmdt(pointCounts);
 
         exit(0);
         
@@ -152,8 +162,7 @@ int main(int argc, char* argv[]) {
         // Closes parent file
         fclose(finalFile);
 
-        // Detaches from shared memory
-        shmdt(pointCounts);
+
         
         // Buffer line
         printf("\n");
