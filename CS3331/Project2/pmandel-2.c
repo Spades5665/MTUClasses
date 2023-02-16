@@ -73,8 +73,6 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
-
-        
         // Creates the children
         for (int i = 0; i < numChildren; i++) {
             if (getpid() == parentID) {

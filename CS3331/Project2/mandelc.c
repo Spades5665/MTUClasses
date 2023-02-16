@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     int **pointCounts;
 
     // Shared Memory Key
-    key_t memKey = ftok("./", 'u'); // "./" is this file, 'u' is the unique id
+    key_t memKey = ftok("./", 'u'); // "./" is this file, 'u' is the unique
 
     // Checks if creating key worked
     if (memKey < 0) {
@@ -83,17 +83,20 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    hpixels = 3;
     for (i = 0; i < hpixels; i++) {
         unsigned long long rowstart = (unsigned long long) pointCounts + (hpixels * sizeof(int *)) + (i * hpixels * sizeof(int));
         pointCounts[i] = (int *) rowstart;
     }
 
+    //printf("\n");
     for (int rows = 0; rows < hpixels; rows++) {
         for (int columns = 0; columns < wpixels; columns++) {
-            pointCounts[rows][columns] = 1;
+            pointCounts[columns][rows] = 72;
+            //printf("%d ", pointCounts[rows][columns]);
         }
+        //printf("\n");
     }
+    //printf("\n");
 
     // Detaches from shared memory
     shmdt(pointCounts);
