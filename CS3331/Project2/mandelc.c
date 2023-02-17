@@ -1,7 +1,6 @@
 #include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -15,17 +14,15 @@ int main(int argc, char *argv[]) {
     double complex start;  //-- Top left corner
     double width;          //-- Length of the top side
     double height;         //-- Length of the left side
-    int hpixels;           //-- Pixels per imaginary side (left and right)
-    int wpixels;           //-- Pixels per real side      (top and bottom)
+    int hPixels;           //-- Pixels per imaginary side (left and right)
+    int wPixels;           //-- Pixels per real side      (top and bottom)
     double increment;      //-- Length between pixels in complex plane
     double complex z;      //-- Temporary used in mandelbrot recurrence computation
     double complex c;      //-- Temporary used in mandelbrot recurrence computation
     double size;           //-- Temporary used in mandelbrot recurrence computation
-    int maxiterations;     //-- Number of iterations use to identify points in the set
+    int maxIterations;     //-- Number of iterations use to identify points in the set
     int iterations;        //-- Recurrence iteration counters
-    int pheight;           //-- Counter for loop over pixels down imaginary axis
-    int pwidth;            //-- Counter for loop over pixels across real axis
-    int i;                 //-- Loop index for recurrence relation5
+    int i, w, h;                 //-- Loop index for recurrence relation5
     char printBuf[PRINTBUFSIZE];    //-- Output buffer
 
     // Checks for correct number of inputs
@@ -44,13 +41,13 @@ int main(int argc, char *argv[]) {
     height = strtof(argv[4], NULL);
   
     // Finds iteration count
-    maxiterations = atoi(argv[5]);
+    maxIterations = atoi(argv[5]);
 
     // Finds pixel count
-    wpixels = atoi(argv[6]);
+    wPixels = atoi(argv[6]);
 
     // Finds pixel count
-    hpixels = atoi(argv[7]);
+    hPixels = atoi(argv[7]);
 
     // Shared Memory
     int **pointCounts;
@@ -65,7 +62,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Creates Shared Memory
-    int memID = shmget(memKey, (sizeof(int *) * wpixels) + (sizeof(int) * wpixels * wpixels), IPC_CREAT | 0666);
+    int memID = shmget(memKey, sizeof(int *) * wPixels + sizeof(int) * wPixels * wPixels, IPC_CREAT | 0666);
 
     // Checks if creating memID worked
     if (memID < 0) {
@@ -82,87 +79,95 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    for (i = 0; i < hpixels; i++) {
-        unsigned long long rowstart = (unsigned long long) pointCounts + (hpixels * sizeof(int *)) + (i * hpixels * sizeof(int));
-        pointCounts[i] = (int *) rowstart;
+    // Finds starting point on the graph for each child
+    int hStart = (getpid() - getppid() - 1) * hPixels;
+
+    for (h = hStart; h < hStart + hPixels; h++) {
+        unsigned long long rowStart = (unsigned long long) pointCounts + (wPixels * sizeof(int *)) + (h * wPixels * sizeof(int));
+        pointCounts[h] = (int*) rowStart;
     }
 
-    //printf("\n");
-    for (int rows = 0; rows < hpixels; rows++) {
-        for (int columns = 0; columns < wpixels; columns++) {
-            pointCounts[columns][rows] = 2000;
-            //printf("%d ", pointCounts[rows][columns]);
+    // Calculations Print
+    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\n", creal(start), cimag(start), width, wPixels, height, hPixels);
+    write(1, printBuf, strlen(printBuf));
+
+    snprintf(printBuf, PRINTBUFSIZE, "Process %d testing rectangle at %f + %f \n\twidth %f and height %f \n\tplot area width %d by height %d pixels.\n", getpid(), creal(start), cimag(start), width, height, wPixels, hPixels);
+    write(1, printBuf, strlen(printBuf));
+
+    increment = width / ( (double) wPixels - 1 );  //-- How far we move at each step
+
+    //printf("\nChild [%d] has values: hStart = %d, Limit = %d and w = %d, Limit = %d\n\n", getpid() - getppid(), hStart, hStart + hPixels, 0, wPixels);
+    for (h = hStart; h < hStart + hPixels; h++) {
+
+        c = start - (double) h * increment * I + ((getpid() - getppid() - 1) * height * I);
+
+        printf("c = %f + %f --- start = %f + %f, h = %d, increment = %f\n", creal(c), cimag(c), creal(start), cimag(start), h, increment);
+
+        for (w = 0; w < wPixels; w++) {
+
+#ifdef DEBUGCALC	
+	    printf("\nc = %f + %f\n", creal(c), cimag(c));
+#endif
+            z = 0;
+
+            iterations = 0;
+
+            for (i = 1; i <= maxIterations; i++) {
+
+                z = cpow(z, 2) + c;
+               
+#ifdef DEBUGCALC	  
+                printf("z^2 = %f + %f\n", creal(z), cimag(z));
+#endif	  
+
+                size = cabs(z);
+               
+#ifdef DEBUGCALC
+                printf("size of z is %f\n",size);
+#endif
+
+                if (getpid() - getppid() - 1 == 5) {
+                    //printf("\nTrying to access [%d][%d]", h, w);
+                    printf("HW: [%d][%d] --- c = %f + %f, z = %f + %f, size = %f\n", h, w, creal(c), cimag(c), creal(z), cimag(z), size);
+                }
+
+                if (size > 2.0) {
+                    iterations = i;
+                    break;
+                }
+
+            }
+
+            if (i > maxIterations) {
+                iterations = maxIterations;
+            }
+
+            if (getpid() - getppid() - 1 == 5) {
+                //printf("\nTrying to access [%d][%d]", h, w);
+                printf("Iterations value: %d, max = %d\n", iterations, maxIterations);
+            }
+
+            pointCounts[h][w] = iterations;
+           
+            c = c + increment + 0 * I;
+
         }
-        //printf("\n");
+
     }
-    //printf("\n");
+
+    /*printf("Here is the memory [%d] added: \n", getpid() - getppid() - 1);
+    for (h = hStart; h < hStart + hPixels; h++) {
+        for (w = 0; w < wPixels; w++) {
+            printf("%d ", pointCounts[h][w]);
+        }
+        printf("\n");
+    }*/
 
     // Detaches from shared memory
     shmdt(pointCounts);
 
-    exit(0);
-
-    // Calculations Print
-    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\n", creal(start), cimag(start), width, wpixels, height, hpixels);
+    // End Print
+    snprintf(printBuf, PRINTBUFSIZE, "Process %d done.\n", getpid());
     write(1, printBuf, strlen(printBuf));
-
-    snprintf(printBuf, PRINTBUFSIZE, "Process %d testing rectangle at %.8f + %.8f \n\twidth %.8f and height %.8f \n\tplot area width %d by height %d pixels.\n", getpid(), creal(start), cimag(start), width, height, wpixels, hpixels);
-    write(1, printBuf, strlen(printBuf));
-
-  z = 0;
-  size = 0;
-  increment = width / ( (double) wpixels - 1 );  //-- How far we move at each step
-
-  for (pheight = 0; pheight < hpixels; pheight++) {
-
-      c = start - (double) pheight * increment * I;
-
-      for (pwidth = 0; pwidth < wpixels; pwidth++) {
-
-#ifdef DEBUGCALC	
-	   printf("\nc = %f + %f\n", creal(c), cimag(c));
-#endif
-           z = 0;
-
-           iterations = 0;
-
-           for (i = 1; i <= maxiterations; i++) {
-
-               z = cpow(z, 2) + c;
-               
-#ifdef DEBUGCALC	  
-               printf("z^2 = %f + %f\n", creal(z), cimag(z));
-#endif	  
-
-               size = cabs(z);
-               
-#ifdef DEBUGCALC
-               printf("size of z is %f\n",size);
-#endif	  
-
-               if (size > 2.0) {
-                   iterations = i;
-                   break;
-               }
-               
-           }
-
-           if (i > maxiterations) {
-               iterations = maxiterations;
-           }
-           
-#ifndef DEBUGCALC	
-           //addPoint(colorscheme, iterations, maxiterations, fp);
-#endif
-           
-           c = c + increment + 0 * I;
-
-      }
-
-  }
-
-  // End Print
-  snprintf(printBuf, PRINTBUFSIZE, "Process %d done.\n", getpid());
-  write(1, printBuf, strlen(printBuf));
 
 }

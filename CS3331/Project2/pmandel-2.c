@@ -6,7 +6,83 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
-#include "pmandel-2.h"
+#include <math.h>
+
+#define PI 3.14159265359
+
+int *iterMap(int **pointCounts,int width,int height, int maxIterations) {
+
+    int i, j;
+    int *iterationMap;
+
+    iterationMap = malloc(maxIterations * sizeof(int));
+    if (iterationMap == 0) {
+        return NULL;
+    }
+    bzero(iterationMap, maxIterations * sizeof(int));
+
+    for (j = 0; j < height; j++) {
+        for (i = 0; i < width; i++) {
+            //printf("\nValue in pointCounts[%d][%d] = %d\n", i, j, pointCounts[i][j]);
+            iterationMap[pointCounts[i][j] - 1] = iterationMap[pointCounts[i][j] - 1] + 1;
+        }
+    }
+
+    return iterationMap;
+}
+
+int *iterSpectrumMap(int *iterationMap, int maxIterations) {
+    int *iterSpecMap;
+    int i, leadingEdge, width;
+
+    iterSpecMap = malloc(maxIterations * sizeof(int));
+    if (iterSpecMap == 0) {
+        return(iterSpecMap);
+    }
+
+    bzero(iterSpecMap, maxIterations * sizeof(int));
+
+    leadingEdge = 0;
+    for (i = 0; i < maxIterations; i++) {
+        width = iterationMap[i];
+
+        if (iterationMap[i] != 0) {
+            iterSpecMap[i] = leadingEdge + (width / 2) + 1;
+        } else {
+            iterSpecMap[i] = 0;
+        }
+
+        leadingEdge += iterationMap[i];
+    }
+
+    return(iterSpecMap);
+}
+
+void *spectrumToRGB(int **pointCounts, int width, int height, int maxIterations, int *iterSpecMap, FILE *outfile) {
+    int i, j, total;
+    unsigned char red, green, blue;
+
+    total = width * height;
+
+    for (i = 0; i < height; i++) {
+        for(j = 0; j < width; j++) {
+            if (pointCounts[i][j] == maxIterations) {
+                red = 0;
+                green = 0;
+                blue = 0;
+            } else {
+                red = sin( (float) iterSpecMap[pointCounts[i][j] - 1] / (float) total * PI / 2) * 255;
+                green = sin( (float) iterSpecMap[pointCounts[i][j] - 1] / (float) total * PI) * 255;
+                blue = cos( (float) iterSpecMap[pointCounts[i][j] - 1] / (float) total * PI / 2) * 255;
+            }
+
+            fputc(red, outfile);
+            fputc(green, outfile);
+            fputc(blue, outfile);
+
+        }
+    }
+}
 
 int main(int argc, char* argv[]) {
 
@@ -28,7 +104,7 @@ int main(int argc, char* argv[]) {
         int pixels = atoi(argv[5]);
 
         // Makes sure its of proper size
-        if (pixels < 48) {
+        if (pixels < 6) {
             printf("\nMust be at least 48 pixels!\n\n");
             exit(1);
         }
@@ -57,7 +133,7 @@ int main(int argc, char* argv[]) {
         }
         
         // Creates Shared Memory
-        int memID = shmget(memKey, (sizeof(int *) * pixels) + (sizeof(int) * pixels * pixels), IPC_CREAT | 0666);
+        int memID = shmget(memKey, sizeof(int *) * pixels + sizeof(int) * pixels * pixels, IPC_CREAT | 0666);
 
         // Makes sure memory creation worked
         if (memID < 0) {
@@ -91,25 +167,25 @@ int main(int argc, char* argv[]) {
             double ratio = 1.0 / numChildren;
             
             // Imaginary start
-            double imagL = atof(argv[2]) - ( getpid() - parentID - 1 * ratio * atof(argv[3]) ); // Imaginary left - ( (which section of the picture) * ratio * width )
+            double imagL = atof(argv[2]) - ( (getpid() - parentID - 1) * ratio * atof(argv[3]) ); // Imaginary left - ( (which section of the picture) * ratio * width )
 
             // Height of child picture
             double height = atof(argv[3]) * ratio;
 
             // Height of child picture in pixels
-            int hpixels = atoi(argv[5]) * ratio;
+            int hPixels = atoi(argv[5]) * ratio;
             
             // Converts values to strings
             char imag[10];
             char heig[10];
-            char hpix[10];
+            char hPix[10];
             
             sprintf(imag, "%f", imagL);
             sprintf(heig, "%f", height);
-            sprintf(hpix, "%d", hpixels);
+            sprintf(hPix, "%d", hPixels);
 
             // Array for mandel
-            char *args[] = {"./mandelc", argv[1], imag, argv[3], heig, argv[4], argv[5], hpix, (char*) NULL};
+            char *args[] = {"./mandelc", argv[1], imag, argv[3], heig, argv[4], argv[5], hPix, (char*) NULL};
 
             // Calls mandel
             if (execvp(args[0], args)) {
@@ -126,22 +202,11 @@ int main(int argc, char* argv[]) {
             wait(NULL);
         }
 
+        // Sets up access to shared memory
         for (int i = 0; i < pixels; i++){
-            unsigned long long rowstart = (unsigned long long) pointCounts + (pixels * sizeof(int *)) + (i * pixels * sizeof(int));
-            pointCounts[i] = (int *) rowstart;
+            unsigned long long rowStart = (unsigned long long) pointCounts + (pixels * sizeof(int *)) + (i * pixels * sizeof(int));
+            pointCounts[i] = (int*) rowStart;
         }
-
-        printf("\n");
-        for (int r = 0; r < atoi(argv[5]) * (1.0 / numChildren); r++) {
-            for (int c = 0; c < pixels; c++) {
-                printf("%d ", pointCounts[r][c]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-
-        // Detaches from shared memory
-        shmdt(pointCounts);
         
         // Create Final image
         FILE * finalFile = fopen(argv[6], "wb");
@@ -156,7 +221,16 @@ int main(int argc, char* argv[]) {
         // Set parent file values
         int *iterationMap = iterMap(pointCounts, pixels, pixels, atoi(argv[4]));
         int *iterSpecMap = iterSpectrumMap(iterationMap, atoi(argv[4]));
-        //spectrumToRGB(pointCounts, pixels, pixels, atoi(argv[4]), iterSpecMap, finalFile);
+        spectrumToRGB(pointCounts, pixels, pixels, atoi(argv[4]), iterSpecMap, finalFile);
+
+        // Frees iterSpecMap
+        free(iterSpecMap);
+
+        // Detaches from shared memory
+        shmdt(pointCounts);
+
+        // Deletes shared memory
+        shmctl(memID, IPC_RMID, NULL);
 
         // Closes parent file
         fclose(finalFile);
