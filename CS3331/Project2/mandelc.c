@@ -7,7 +7,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define PRINTBUFSIZE 241
+#define PRINTBUFSIZE 400
 
 int main(int argc, char *argv[]) {
 
@@ -82,26 +82,22 @@ int main(int argc, char *argv[]) {
     // Finds starting point on the graph for each child
     int hStart = (getpid() - getppid() - 1) * hPixels;
 
+    // Assigns rows to be accessed by children
     for (h = hStart; h < hStart + hPixels; h++) {
         unsigned long long rowStart = (unsigned long long) pointCounts + (wPixels * sizeof(int *)) + (h * wPixels * sizeof(int));
         pointCounts[h] = (int*) rowStart;
     }
 
     // Calculations Print
-    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\n", creal(start), cimag(start), width, wPixels, height, hPixels);
+    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\nProcess %d testing rectangle at %f + %f \n\twidth %f and height %f \n\tplot area width %d by height %d pixels.\n", creal(start), cimag(start), width, wPixels, height, hPixels, getpid(), creal(start), cimag(start), width, height, wPixels, hPixels);
     write(1, printBuf, strlen(printBuf));
 
-    snprintf(printBuf, PRINTBUFSIZE, "Process %d testing rectangle at %f + %f \n\twidth %f and height %f \n\tplot area width %d by height %d pixels.\n", getpid(), creal(start), cimag(start), width, height, wPixels, hPixels);
-    write(1, printBuf, strlen(printBuf));
-
+    // Mandelbrot stuff
     increment = width / ( (double) wPixels - 1 );  //-- How far we move at each step
 
-    //printf("\nChild [%d] has values: hStart = %d, Limit = %d and w = %d, Limit = %d\n\n", getpid() - getppid(), hStart, hStart + hPixels, 0, wPixels);
     for (h = hStart; h < hStart + hPixels; h++) {
 
-        c = start - (double) h * increment * I + ((getpid() - getppid() - 1) * height * I);
-
-        printf("c = %f + %f --- start = %f + %f, h = %d, increment = %f\n", creal(c), cimag(c), creal(start), cimag(start), h, increment);
+        c = start - (double) h * increment * I + ((getpid() - getppid() - 1) * height * I); // Adjusted math since children were off by a bit
 
         for (w = 0; w < wPixels; w++) {
 
@@ -126,11 +122,6 @@ int main(int argc, char *argv[]) {
                 printf("size of z is %f\n",size);
 #endif
 
-                if (getpid() - getppid() - 1 == 5) {
-                    //printf("\nTrying to access [%d][%d]", h, w);
-                    printf("HW: [%d][%d] --- c = %f + %f, z = %f + %f, size = %f\n", h, w, creal(c), cimag(c), creal(z), cimag(z), size);
-                }
-
                 if (size > 2.0) {
                     iterations = i;
                     break;
@@ -142,11 +133,7 @@ int main(int argc, char *argv[]) {
                 iterations = maxIterations;
             }
 
-            if (getpid() - getppid() - 1 == 5) {
-                //printf("\nTrying to access [%d][%d]", h, w);
-                printf("Iterations value: %d, max = %d\n", iterations, maxIterations);
-            }
-
+            // Adds to shared memory
             pointCounts[h][w] = iterations;
            
             c = c + increment + 0 * I;
@@ -155,13 +142,19 @@ int main(int argc, char *argv[]) {
 
     }
 
-    /*printf("Here is the memory [%d] added: \n", getpid() - getppid() - 1);
+    char pointprintbuf[PRINTBUFSIZE * wPixels * wPixels];    //-- points Output buffer
+    sprintf(pointprintbuf, "Process: %d Calculated these values:\n", getpid());
     for (h = hStart; h < hStart + hPixels; h++) {
+        sprintf(pointprintbuf + strlen(pointprintbuf), "Row %d: ", h);
         for (w = 0; w < wPixels; w++) {
-            printf("%d ", pointCounts[h][w]);
+            sprintf(pointprintbuf + strlen(pointprintbuf), "   [%d] %d", w, pointCounts[h][w]);
         }
-        printf("\n");
-    }*/
+        sprintf(pointprintbuf + strlen(pointprintbuf), "\n");
+    }
+
+#ifdef DUMPPOINTS
+    write(1, pointprintbuf, strlen(pointprintbuf));
+#endif
 
     // Detaches from shared memory
     shmdt(pointCounts);

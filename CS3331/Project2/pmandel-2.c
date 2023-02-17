@@ -104,8 +104,8 @@ int main(int argc, char* argv[]) {
         int pixels = atoi(argv[5]);
 
         // Makes sure its of proper size
-        if (pixels < 6) {
-            printf("\nMust be at least 48 pixels!\n\n");
+        if (pixels < 10) {
+            printf("\nMust be at least 10 pixels!\n\n");
             exit(1);
         }
 
