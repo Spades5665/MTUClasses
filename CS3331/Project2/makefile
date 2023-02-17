@@ -2,6 +2,8 @@ all: pmandel-2 mandelc
 
 dump: pmandel-2 mandelcDump
 
+sleep: pmandel-2 mandelcSleep
+
 pmandel-2: pmandel-2.o
 	gcc -g -o pmandel-2 pmandel-2.o -lm
 
@@ -10,6 +12,9 @@ mandelc: mandelc.o
 
 mandelcDump: mandelc.o
 	gcc -g -DDUMPPOINTS -o mandelc mandelc.c -lm
+
+mandelcSleep: mandelc.o
+	gcc -g -DSLEEPINT -o mandelc mandelc.c -lm
 
 pmandel-2.o: pmandel-2.c
 	gcc -g -c pmandel-2.c

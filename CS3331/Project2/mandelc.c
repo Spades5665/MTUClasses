@@ -79,6 +79,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+#ifdef SLEEPINT
+    sleep(8);
+#endif
+
     // Finds starting point on the graph for each child
     int hStart = (getpid() - getppid() - 1) * hPixels;
 
