@@ -7,7 +7,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define PRINTBUFSIZE 400
+#define PRINTBUFSIZE 500
 
 int main(int argc, char *argv[]) {
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Calculations Print
-    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\nProcess %d testing rectangle at %f + %f \n\twidth %f and height %f \n\tplot area width %d by height %d pixels.\n", creal(start), cimag(start), width, wPixels, height, hPixels, getpid(), creal(start), cimag(start), width, height, wPixels, hPixels);
+    snprintf(printBuf, PRINTBUFSIZE, "Top left coordinate is: %f + %fi\nLength of top/bottom side:  %f\nPixels of top/bottom side:  %d\nLength of left/right side:  %f\nPixels of left/right side:  %d\nProcess %d testing rectangle at %.8f + %.8f \n\twidth %.8f and height %.8f \n\tplot area width %d by height %d pixels.\n", creal(start), cimag(start), width, wPixels, height, hPixels, getpid(), creal(start), cimag(start), width, height, wPixels, hPixels);
     write(1, printBuf, strlen(printBuf));
 
     // Mandelbrot stuff
@@ -146,18 +146,17 @@ int main(int argc, char *argv[]) {
 
     }
 
-    char pointprintbuf[PRINTBUFSIZE * wPixels * wPixels];    //-- points Output buffer
-    sprintf(pointprintbuf, "Process: %d Calculated these values:\n", getpid());
-    for (h = hStart; h < hStart + hPixels; h++) {
-        sprintf(pointprintbuf + strlen(pointprintbuf), "Row %d: ", h);
-        for (w = 0; w < wPixels; w++) {
-            sprintf(pointprintbuf + strlen(pointprintbuf), "   [%d] %d", w, pointCounts[h][w]);
-        }
-        sprintf(pointprintbuf + strlen(pointprintbuf), "\n");
-    }
-
 #ifdef DUMPPOINTS
-    write(1, pointprintbuf, strlen(pointprintbuf));
+    char pointPrintBuf[PRINTBUFSIZE * wPixels * wPixels];    //-- points Output buffer
+    sprintf(pointPrintBuf, "Process: %d calculated these values:\n", getpid());
+    for (h = hStart; h < hStart + hPixels; h++) {
+        sprintf(pointPrintBuf + strlen(pointPrintBuf), "Row %d: ", h);
+        for (w = 0; w < wPixels; w++) {
+            sprintf(pointPrintBuf + strlen(pointPrintBuf), "  [%d] %d", w, pointCounts[h][w]);
+        }
+        sprintf(pointPrintBuf + strlen(pointPrintBuf), "\n");
+    }
+    write(1, pointPrintBuf, strlen(pointPrintBuf));
 #endif
 
     // Detaches from shared memory

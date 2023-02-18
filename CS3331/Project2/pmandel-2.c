@@ -23,7 +23,6 @@ int *iterMap(int **pointCounts,int width,int height, int maxIterations) {
 
     for (j = 0; j < height; j++) {
         for (i = 0; i < width; i++) {
-            //printf("\nValue in pointCounts[%d][%d] = %d\n", i, j, pointCounts[i][j]);
             iterationMap[pointCounts[i][j] - 1] = iterationMap[pointCounts[i][j] - 1] + 1;
         }
     }
