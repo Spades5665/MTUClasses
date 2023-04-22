@@ -8,13 +8,16 @@
                 return $dbh;
             }
             
-            function authenticate($user, $passwd) {
+            function authenticate($user, $passwd, $prof) {
                 try {
                     $dbh = connectDB();
-                    if (student) {
-                        $statement = $dbh->prepare("SELECT count(*) FROM student "."where username = :username and password = sha2(:passwd,256) ");
+                    if ($prof == "student") {
+                        $statement = $dbh->prepare("SELECT count(*) FROM student "."where sName = :username and sPassword = sha2(:passwd,256) ");
+                    } else if ($prof == "instructor") {
+                        $statement = $dbh->prepare("SELECT count(*) FROM instructor "."where iName = :username and iPassword = sha2(:passwd,256) ");
                     } else {
-                        $statement = $dbh->prepare("SELECT count(*) FROM instructor "."where username = :username and password = sha2(:passwd,256) ");
+                        print "Error!<br/>";
+                        die();
                     }
                     
                     $statement->bindParam(":username", $user);
