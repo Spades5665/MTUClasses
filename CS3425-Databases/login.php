@@ -17,8 +17,10 @@
             }
         ?>
         <form method = post action = login.php>
-            Username: <input type = "text" id = "username" name = "username"><br>
-            Password: <input type = "text" id = "password" name = "password"><br>
+            Username: <input type = "text" name = "username"><br>
+            Password: <input type = "text" name = "password"><br>
+            Student: <input type = "radio" name = "profession" value = "student">
+            Instructor: <input type = "radio" name = "profession" value = "instructor"><br>
             <button type = "submit" name = "loginButton">Login</button>
         </form>
     </body>
