@@ -1,14 +1,61 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
+\usepackage{amsfonts}
 
 \title{Newton's Method}
-\author{Caden Wilfong}
+\author{David Cunningham, Josie Towery, Caden Wilfong}
 \date{October 2023}
+
 
 \begin{document}
 
+
+\begin{abstract}
+   Newton's Method abstract 
+\end{abstract}
+
+
 \maketitle
 
+
 \section{Introduction}
+    \begin{itemize}
+        \item \cite{encyclopedianewton} The purpose of Newton's Method is to find the roots of a function when given a value of x. The method finds the closest root to the given x by subtracting the the value of the function at x divided by the value of the derivative of the function at x. This process is repeated over and over until the change in the new calculated x and the x used is minuscule.  
+    \end{itemize} 
+
+\section{Newton's Method Formula}
+
+\begin{itemize}
+    \item $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^n$ A function of x
+    \item $df(x): \mathbb{R}^n \rightarrow \mathbb{R}^{n \times n}$ Derivative of a function f of x
+\end{itemize}
+
+\begin{equation}
+    x_{k+1} = x_k - linsol(df(x), f(x))
+\end{equation}
+
+
+\section{Under Determined Newton's Method}
+\begin{itemize}
+    \item What is this? 
+    \item Why does it still work (is this unexpected)?
+    \item Are there limits to where Newton's Method can work?
+\end{itemize}
+
+Newton's method \cite{atkinson1991introduction}can also be applied to an undetermined system of linear equations. An undetermined system is one with more equations than variables. 
+
+
+\section{Conclusion}
+\begin{itemize}
+    \item Review of Newton's Method
+    \item Expansion to under determined systems
+    \item Final thoughts?
+\end{itemize}
+
+
+\bibliographystyle{alphadin}
+%\bibliographystyle{IEEEtranN}
+\bibliography{refs}
+
 
 \end{document}
