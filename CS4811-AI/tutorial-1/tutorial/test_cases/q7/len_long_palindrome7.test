@@ -1,0 +1,23 @@
+class: "EvalTest" 
+success: "lenLongestPalindrome(text) returned the correct value"
+failure: "lenLongestPalindrome(text) did not return the correct value"
+points: "1"
+
+# Python statements initializing variables for the test below. 
+preamble: """
+
+def test3g(numChars, length): 
+	import random 
+	random.seed(42) 
+	text = ''.join(chr(random.randint(ord('a'), ord('a') + numChars - 1)) for _ in range(length))
+	return text
+
+text = test3g(10,30)
+#print(text)
+ans = submission.lenLongestPalindrome(text)
+#print(ans)
+"""
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "ans"

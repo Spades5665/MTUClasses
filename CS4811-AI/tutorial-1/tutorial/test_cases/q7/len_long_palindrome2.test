@@ -1,0 +1,8 @@
+class: "EvalTest" 
+success: "lenLongestPalindrome(text) returned the correct value"
+failure: "lenLongestPalindrome(text) did not return the correct value"
+points: "0.5"
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "submission.lenLongestPalindrome('aa')"

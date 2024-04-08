@@ -1,0 +1,18 @@
+class: "EvalTest" 
+success: "findSingletonWords(text) returned the correct set of words"
+failure: "findSingletonWords(text) did not return the correct set of words"
+
+# Python statements initializing variables for the test below. 
+preamble: """
+
+sw = submission.findSingletonWords('the quick brown fox jumps over the lazy fox')
+if type(sw) is set: 
+	l = sorted(sw)
+else:
+	l = "Error: not a set"
+
+"""
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "l"

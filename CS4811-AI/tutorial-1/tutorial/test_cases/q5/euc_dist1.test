@@ -1,0 +1,7 @@
+class: "EvalTest" 
+success: "euclideanDistance(loc1, loc2) returned the correct distance"
+failure: "euclideanDistance(loc1, loc2) did not return the correct distance"
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "round(submission.euclideanDistance((1,5),(4,1)), 10)"

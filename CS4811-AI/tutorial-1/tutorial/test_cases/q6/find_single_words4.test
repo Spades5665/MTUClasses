@@ -1,0 +1,27 @@
+class: "EvalTest" 
+success: "findSingletonWords(text) returned the correct set of words"
+failure: "findSingletonWords(text) did not return the correct set of words"
+
+# Python statements initializing variables for the test below. 
+preamble: """
+
+def test3f(numTokens, numTypes):
+    import random
+    random.seed(4811)
+    text = ' '.join(str(random.randint(0, numTypes)) for _ in range(numTokens))
+    return text
+
+text = test3f(500,100)
+#print text
+
+sw = submission.findSingletonWords(text)
+if type(sw) is set: 
+	l = sorted(sw)
+else:
+	l = "Error: not a set"
+
+"""
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "l"
