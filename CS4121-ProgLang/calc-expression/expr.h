@@ -22,11 +22,10 @@ typedef enum {
 } expr_t;
 
 struct expr {
-    expr_t kind;
-    struct expr *left;
-    struct expr *right;
-    char *var;
-    int value;
+       expr_t kind;
+       int value;
+       struct expr *left;
+       struct expr *right;
 };
 
 struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right);
@@ -50,7 +49,7 @@ struct SymbolTable {
     struct KeyValuePair* table[TABLE_SIZE]; // Array of pointers to key-value pairs
 };
 
-struct KeyValuePair* getAdd_symTab(struct SymbolTable * tab, char *text);
+struct KeyValuePair * getAdd_symTab(struct SymbolTable * tab, char *text);
 
 void destroyHashTable(struct SymbolTable* ht);
 #endif

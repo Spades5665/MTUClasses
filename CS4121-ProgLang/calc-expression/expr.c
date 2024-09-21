@@ -1,5 +1,4 @@
 #include "expr.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -10,6 +9,7 @@ Create one node in an expression tree and return the structure.
 */
 
 struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right) {
+	/* Shortcut: sizeof(*e) means "the size of what e points to" */
 	struct expr *e = malloc(sizeof(*e));
 
 	e->kind = kind;
@@ -32,7 +32,7 @@ struct expr * expr_create_value(int value) {
 Recursively delete an expression tree.
 */
 
-void expr_delete(struct expr *e){
+void expr_delete(struct expr *e) {
 	/* Careful: Stop on null pointer. */
 	if (!e) return;
 	expr_delete(e->left);
@@ -51,10 +51,9 @@ void expr_print(struct expr *e) {
 	if (!e) return;
 
 	printf("(");
-
 	expr_print(e->left);
 
-	switch(e->kind) {
+	switch (e->kind) {
 		case EXPR_ADD:
 			printf("+");
 			break;
@@ -96,26 +95,27 @@ float expr_evaluate(struct expr *e) {
 
 	switch (e->kind) {
 		case EXPR_ADD:
-			return l+r;
+			return l + r;
 		case EXPR_SUBTRACT:
-			return l-r;
+			return l - r;
 		case EXPR_MULTIPLY:
-			return l*r;
+			return l * r;
 		case EXPR_DIVIDE:
 			if (r == 0) {
 				printf("runtime error: divide by zero\n");
 				exit(1);
 			}
-			return l/r;	
+			return l / r;	
 		case EXPR_VALUE:
 			return e->value;
 		case EXPR_SIN:
-		   printf("sin(%f)\n", r);
+		   printf("sin( %f )\n", r);
 		   return sin(r);
 		case EXPR_COS:
-		   printf("cos(%f)\n", r);
+		   printf("cos( %f )\n", r);
 		   return cos(r);
 	}
+
 	return 0;
 }
 
@@ -142,7 +142,7 @@ struct KeyValuePair* createKeyValuePair(const char* key, int value) {
 }
 
 // Function to insert a key-value pair into the hash table
-struct KeyValuePair* insert(struct SymbolTable* ht, const char* key, int value) {
+struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, int value) {
     unsigned int index = hash(key);
     struct KeyValuePair* newPair = createKeyValuePair(key, value);
 
@@ -155,15 +155,15 @@ struct KeyValuePair* insert(struct SymbolTable* ht, const char* key, int value) 
         struct KeyValuePair* current = ht->table[index];
         while (current->next) {current = current->next;}
 		current->next = newPair;
-        printf("Insert( ) returns index %d key %s\n,", index,ht->table[index]->key);
+        printf("Insert( ) returns index %d key %s\n,", index, ht->table[index]->key);
 	}
     return newPair;
 }
 
 // Function to look up a value by key
-struct KeyValuePair* lookup(struct SymbolTable* ht, const char* key) {
+struct KeyValuePair * lookup(struct SymbolTable* ht, const char* key) {
     unsigned int index = hash(key);
-    struct KeyValuePair* current = ht->table[index];
+    struct KeyValuePair * current = ht->table[index];
 
     while (current) {
         if (strcmp(current->key, key) == 0) {return current;}
@@ -187,8 +187,11 @@ void destroyHashTable(struct SymbolTable* ht) {
     }
 }
 
-struct KeyValuePair* getAddr_symTab(struct SymbolTable* tab, char* name){
-   struct KeyValuePair* p = lookup(tab, name);
-   if (p == NULL) {p = insert(tab, name, 0);}
+struct KeyValuePair* getAddr_symTab(struct SymbolTable * tab, char *name){
+  
+   struct KeyValuePair * p = lookup(tab, name);
+   if (p == NULL)
+      p = insert(tab, name, 0);
+   
    return p;   
 }

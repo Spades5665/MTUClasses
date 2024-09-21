@@ -1,4 +1,6 @@
-%{#include "parser.h"%}
+%{
+#include "parser.h"
+%}
 
 %option nounput
 %option noinput
@@ -7,10 +9,9 @@ DIGIT 	[0-9]
 LETTER	[a-zA-Z_]
 
 %%
-
 sin         return TOKEN_SIN;
 cos         return TOKEN_COS;
-[\n\r\t]*	;
+[\n\r\t]*		            ;
 {DIGIT}*    return TOKEN_INT;
 {LETTER}*	return TOKEN_ID;
 \*			return TOKEN_MUL;

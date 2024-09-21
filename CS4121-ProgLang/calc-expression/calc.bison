@@ -54,8 +54,9 @@ struct expr * parser_result = 0;
 /* Here is the grammar: program is the start symbol. */
 
 program: expr TOKEN_SEMI
-	      {parser_result = $1; return 0;}
+		{parser_result = $1; return 0;}
 	   ;
+
 
 expr: expr TOKEN_PLUS term
 		{$$ = expr_create(EXPR_ADD, $1, $3);}
@@ -74,16 +75,16 @@ term: term TOKEN_MUL factor
 	;
 
 factor: TOKEN_LPAREN expr TOKEN_RPAREN
-	   {$$ = $2;}
-	| TOKEN_MINUS factor
-	   {$$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2);}
-	| TOKEN_SIN TOKEN_LPAREN expr TOKEN_RPAREN
-	   {$$ = expr_create(EXPR_SIN, 0, $3);}
-	| TOKEN_COS TOKEN_LPAREN expr TOKEN_RPAREN
-	   {$$ = expr_create(EXPR_COS, 0, $3);}
-	| TOKEN_INT
-	   {$$ = expr_create_value(atoi(yytext));}
-	;
+	      {$$ = $2;}
+	  | TOKEN_MINUS factor
+		  {$$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2);}
+	  | TOKEN_SIN TOKEN_LPAREN expr TOKEN_RPAREN
+	      {$$ = expr_create(EXPR_SIN, 0, $3);}
+	  | TOKEN_COS TOKEN_LPAREN expr TOKEN_RPAREN
+	      {$$ = expr_create(EXPR_COS, 0, $3);}
+	  | TOKEN_INT
+		  {$$ = expr_create_value(atoi(yytext));}
+	  ;
 
 %%
 
@@ -93,7 +94,7 @@ encounter an error.  In principle, "str" will contain something
 useful.  In practice, it often does not.
 */
 
-int yyerror( char *str ) {
+int yyerror(char *str) {
 	printf("parse error: %s\n", str);
 	return 0;
 }

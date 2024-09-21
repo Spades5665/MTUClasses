@@ -1,4 +1,3 @@
-
 # The top level rule indicates how to link everything together into calc
 
 calc: main.o expr.o scanner.o parser.o
