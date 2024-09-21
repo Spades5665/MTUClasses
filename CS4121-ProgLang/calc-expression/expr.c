@@ -87,12 +87,12 @@ Recursively evaluate an expression by performing
 the desired operation and returning it up the tree.
 */
 
-float expr_evaluate(struct expr *e, struct SymbolTable* ht) {
+float expr_evaluate(struct expr *e) {
 	/* Careful: Return zero on null pointer. */
 	if (!e) return 0;
 
-	float l = expr_evaluate(e->left, ht);
-	float r = expr_evaluate(e->right, ht);
+	float l = expr_evaluate(e->left);
+	float r = expr_evaluate(e->right);
 
 	switch (e->kind) {
 		case EXPR_ADD:

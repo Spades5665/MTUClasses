@@ -26,7 +26,6 @@ static void initialize(char* inputFileName) {
 		fprintf(stderr, "Error: Could not open file %s\n", inputFileName);
 		exit(-1);
 	}
-
 	
 	char *outputFileName = strcat(inputFileName, ".out");
 	stdout = freopen(outputFileName, "w", stdout);

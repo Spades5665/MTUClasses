@@ -21,7 +21,7 @@ cos         return TOKEN_COS;
 \)			return TOKEN_RPAREN;
 \;			return TOKEN_SEMI;
 
-.			{printf("scan error: bad token: %c\n",yytext[0]);}
+.			{printf("scan error: bad token: %c\n", yytext[0]);}
 %%
 
 /*

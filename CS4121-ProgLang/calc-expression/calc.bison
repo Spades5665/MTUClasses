@@ -16,8 +16,6 @@ for use by scanner.c.
 %token TOKEN_RPAREN
 %token TOKEN_SIN
 %token TOKEN_COS
-%token TOKEN_EQU
-%token TOKEN_END
 %{
 
 #include <math.h>
@@ -57,15 +55,7 @@ struct expr * parser_result = 0;
 
 program: expr TOKEN_SEMI
 	      {parser_result = $1; return 0;}
-	   | vari TOKEN_SEMI
-	   	  {parser_result = $1; return 0;}
-	   | TOKEN_END
-	   	  {return 0;}
 	   ;
-
-vari: TOKEN_ID TOKEN_EQU expr
-		{$$ = expr_create_var(symtab, $1, evaluate($3));}
-	;
 
 expr: expr TOKEN_PLUS term
 		{$$ = expr_create(EXPR_ADD, $1, $3);}
@@ -93,12 +83,6 @@ factor: TOKEN_LPAREN expr TOKEN_RPAREN
 	   {$$ = expr_create(EXPR_COS, 0, $3);}
 	| TOKEN_INT
 	   {$$ = expr_create_value(atoi(yytext));}
-	| TOKEN_ID
-       {
-           struct KeyValuePair* var = lookup(symtab, yytext);
-           if (var) {$$ = expr_create_value(var->value);
-           } else {$$ = expr_create_value(0);}
-       }
 	;
 
 %%
