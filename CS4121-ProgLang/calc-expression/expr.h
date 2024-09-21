@@ -18,16 +18,15 @@ typedef enum {
 	EXPR_MULTIPLY,
 	EXPR_VALUE,
 	EXPR_SIN,
-	EXPR_COS,
-    EXPR_VAR
+	EXPR_COS
 } expr_t;
 
 struct expr {
     expr_t kind;
-    int value;
-    char *var;
     struct expr *left;
     struct expr *right;
+    char *var;
+    int value;
 };
 
 struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right);

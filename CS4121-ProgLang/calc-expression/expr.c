@@ -10,13 +10,12 @@ Create one node in an expression tree and return the structure.
 */
 
 struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right) {
-	/* Shortcut: sizeof(*e) means "the size of what e points to" */
 	struct expr *e = malloc(sizeof(*e));
 
 	e->kind = kind;
-	e->value = 0;
 	e->left = left;
 	e->right = right;
+	e->value = 0;
 
 	return e;
 }
@@ -88,12 +87,12 @@ Recursively evaluate an expression by performing
 the desired operation and returning it up the tree.
 */
 
-float expr_evaluate(struct expr *e) {
+float expr_evaluate(struct expr *e, struct SymbolTable* ht) {
 	/* Careful: Return zero on null pointer. */
 	if (!e) return 0;
 
-	float l = expr_evaluate(e->left);
-	float r = expr_evaluate(e->right);
+	float l = expr_evaluate(e->left, ht);
+	float r = expr_evaluate(e->right, ht);
 
 	switch (e->kind) {
 		case EXPR_ADD:
@@ -110,8 +109,6 @@ float expr_evaluate(struct expr *e) {
 			return l/r;	
 		case EXPR_VALUE:
 			return e->value;
-		case EXPR_VAR:
-			return 0;
 		case EXPR_SIN:
 		   printf("sin(%f)\n", r);
 		   return sin(r);

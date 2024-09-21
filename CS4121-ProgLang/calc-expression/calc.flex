@@ -20,7 +20,6 @@ cos         return TOKEN_COS;
 \(			return TOKEN_LPAREN;
 \)			return TOKEN_RPAREN;
 \;			return TOKEN_SEMI;
-\=			return TOKEN_EQU;
 
 .			{printf("scan error: bad token: %c\n",yytext[0]);}
 %%

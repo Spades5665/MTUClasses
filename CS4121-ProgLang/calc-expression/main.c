@@ -36,10 +36,6 @@ static void initialize(char* inputFileName) {
 	}
 }
 
-void initialize_table() {
-	memset(symtab.table, 0, sizeof(symtab.table));
-}
-
 static void finalize() {
     fclose(yyin);
     fclose(stdout);
@@ -48,14 +44,13 @@ static void finalize() {
 
 int main(int argc, char *argv[]) {
 	char *fileName = argv[1];
-	initialize_table();
 	initialize(fileName);
 	
 	if(yyparse() == 0) {
 		printf("parse successful: ");
 		expr_print(parser_result);
 		printf("\n");
-		printf("evaluates to: %f\n", expr_evaluate(parser_result));
+		printf("evaluates to: %f\n", expr_evaluate(parser_result, &symtab));
 		return 0;
 	} else {
 		printf("parse failed!\n");
