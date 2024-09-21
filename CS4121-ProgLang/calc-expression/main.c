@@ -32,7 +32,6 @@ static void initialize(char* inputFileName) {
 		fprintf(stderr, "Error: Could not open file %s\n", outputFileName);
 		exit(-1);
 	}
-
 }
 
 static void finalize() {
@@ -46,10 +45,7 @@ int main(int argc, char *argv[]) {
 	initialize(fileName);
 	
 	if (yyparse() == 0) {
-		printf("parse successful: ");
-		expr_print(parser_result);
-		printf("\n");
-		printf("evaluates to: %f\n", expr_evaluate(parser_result));
+		printf("parsing successful\n");
 		return 0;
 	} else {
 		printf("parse failed!\n");

@@ -11,7 +11,7 @@ LETTER	[a-zA-Z_]
 %%
 sin         return TOKEN_SIN;
 cos         return TOKEN_COS;
-[\n\r\t]*		            ;
+[ \n\r\t]*		            ;
 {DIGIT}*    return TOKEN_INT;
 {LETTER}*	return TOKEN_ID;
 \*			return TOKEN_MUL;
@@ -21,6 +21,7 @@ cos         return TOKEN_COS;
 \(			return TOKEN_LPAREN;
 \)			return TOKEN_RPAREN;
 \;			return TOKEN_SEMI;
+\!			return TOKEN_END;
 
 .			{printf("scan error: bad token: %c\n", yytext[0]);}
 %%

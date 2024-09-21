@@ -16,6 +16,7 @@ for use by scanner.c.
 %token TOKEN_RPAREN
 %token TOKEN_SIN
 %token TOKEN_COS
+%token TOKEN_END
 %{
 
 #include <math.h>
@@ -53,10 +54,21 @@ struct expr * parser_result = 0;
 
 /* Here is the grammar: program is the start symbol. */
 
-program: expr TOKEN_SEMI
-		{parser_result = $1; return 0;}
+program: list TOKEN_END
+	       {return 0;}
 	   ;
 
+list: list line
+	| line
+	;
+
+line: expr TOKEN_SEMI
+		{
+			printf("parse successful: ");
+		    expr_print($1);
+			printf("\nevaluates to: %f\n", expr_evaluate($1));			
+		}
+	;
 
 expr: expr TOKEN_PLUS term
 		{$$ = expr_create(EXPR_ADD, $1, $3);}
