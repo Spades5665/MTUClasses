@@ -17,12 +17,15 @@ for use by scanner.c.
 %token TOKEN_SIN
 %token TOKEN_COS
 %token TOKEN_END
+%token TOKEN_EQU
 %{
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "expr.h"
+
+extern struct SymbolTable symtab;
 
 /*
 YYSTYPE is the lexical value returned by each rule in a bison grammar.
@@ -64,9 +67,16 @@ list: list line
 
 line: expr TOKEN_SEMI
 		{
+			parser_result = $1;
 			printf("parse successful: ");
 		    expr_print($1);
 			printf("\nevaluates to: %f\n", expr_evaluate($1));			
+		}
+	| TOKEN_ID TOKEN_EQU expr TOKEN_SEMI
+		{
+			// TO DO: Fix yytext not showing getting TOKEN_ID
+			struct KeyValuePair *pair = insert(&symtab, yytext, expr_evaluate($3));
+			printf("assign successful, Key: %s, Value: %f\n", pair->key, pair->value);
 		}
 	;
 
@@ -96,6 +106,11 @@ factor: TOKEN_LPAREN expr TOKEN_RPAREN
 	      {$$ = expr_create(EXPR_COS, 0, $3);}
 	  | TOKEN_INT
 		  {$$ = expr_create_value(atoi(yytext));}
+	  | TOKEN_ID
+	      {
+              struct KeyValuePair* pair = getAddr_symTab(&symtab, yytext, 0);
+		      $$ = expr_create_value(pair->value);
+		  }
 	  ;
 
 %%

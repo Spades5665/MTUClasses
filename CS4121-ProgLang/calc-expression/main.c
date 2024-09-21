@@ -17,7 +17,7 @@ extern struct expr * parser_result;
 extern FILE *yyin;
 
 // Define the symbol table 
-struct SymbolTable  symtab;
+struct SymbolTable symtab;
 
 static void initialize(char* inputFileName) {
 	yyin = fopen(inputFileName, "r");
@@ -45,7 +45,10 @@ int main(int argc, char *argv[]) {
 	initialize(fileName);
 	
 	if (yyparse() == 0) {
-		printf("parsing successful\n");
+		printf("Final Result: ");
+		expr_print(parser_result);
+		printf("\n");
+		printf("evaluates to: %f\n", expr_evaluate(parser_result));
 		return 0;
 	} else {
 		printf("parse failed!\n");

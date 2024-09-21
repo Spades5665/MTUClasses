@@ -131,7 +131,7 @@ unsigned int hash(const char* key) {
 }
 
 // Function to create a new key-value pair
-struct KeyValuePair* createKeyValuePair(const char* key, int value) {
+struct KeyValuePair* createKeyValuePair(const char* key, float value) {
     struct KeyValuePair* pair = (struct KeyValuePair*) malloc(sizeof(struct KeyValuePair));
     if (pair) {
         pair->key = strdup(key);
@@ -142,20 +142,20 @@ struct KeyValuePair* createKeyValuePair(const char* key, int value) {
 }
 
 // Function to insert a key-value pair into the hash table
-struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, int value) {
+struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float value) {
     unsigned int index = hash(key);
     struct KeyValuePair* newPair = createKeyValuePair(key, value);
 
     if (!ht->table[index]) {
         // No collision, insert at the beginning of the chain
         ht->table[index] = newPair;
-        printf("index is %u\n", index);
+        //printf("index is %u\n", index);
 	} else {
         // Collision, insert at the end of the chain
         struct KeyValuePair* current = ht->table[index];
         while (current->next) {current = current->next;}
 		current->next = newPair;
-        printf("Insert( ) returns index %d key %s\n,", index, ht->table[index]->key);
+        //printf("Insert( ) returns index %d key %s\n,", index, ht->table[index]->key);
 	}
     return newPair;
 }
@@ -187,11 +187,8 @@ void destroyHashTable(struct SymbolTable* ht) {
     }
 }
 
-struct KeyValuePair* getAddr_symTab(struct SymbolTable * tab, char *name){
-  
-   struct KeyValuePair * p = lookup(tab, name);
-   if (p == NULL)
-      p = insert(tab, name, 0);
-   
-   return p;   
+struct KeyValuePair* getAddr_symTab(struct SymbolTable *tab, char *name, int val) {
+	struct KeyValuePair* p = lookup(tab, name);
+	if (p == NULL) {p = insert(tab, name, val);}
+	return p;   
 }

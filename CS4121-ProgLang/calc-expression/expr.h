@@ -41,7 +41,7 @@ float         expr_evaluate(struct expr *e);
 // Define the structure for a key-value pair
 struct KeyValuePair {
     char* key;
-    int value;
+    float value;
     struct KeyValuePair* next; // Pointer to the next item in the chain
 };
 
@@ -49,7 +49,8 @@ struct SymbolTable {
     struct KeyValuePair* table[TABLE_SIZE]; // Array of pointers to key-value pairs
 };
 
-struct KeyValuePair * getAdd_symTab(struct SymbolTable * tab, char *text);
+struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float value);
+struct KeyValuePair * getAddr_symTab(struct SymbolTable* tab, char* text, int val);
 
 void destroyHashTable(struct SymbolTable* ht);
 #endif
