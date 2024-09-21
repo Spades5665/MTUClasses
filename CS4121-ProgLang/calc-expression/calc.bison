@@ -1,4 +1,3 @@
-
 /*
 Declare token types at the top of the bison file,
 causing them to be automatically generated in parser.tab.h
@@ -54,37 +53,45 @@ struct expr * parser_result = 0;
 
 /* Here is the grammar: program is the start symbol. */
 
-program : expr TOKEN_SEMI
-		{ parser_result = $1; return 0; }
-	;
+program: expr TOKEN_SEMI
+	      {parser_result = $1; return 0;}
+	   ;
 
+vari: TOKEN_ID TOKEN_EQU expr
+		{insert(symtab, $1, $3);}
 
-expr	: expr TOKEN_PLUS term
-		{ $$ = expr_create(EXPR_ADD,$1,$3); }
+expr: expr TOKEN_PLUS term
+		{$$ = expr_create(EXPR_ADD, $1, $3);}
 	| expr TOKEN_MINUS term
-		{ $$ = expr_create(EXPR_SUBTRACT,$1,$3); }
+		{$$ = expr_create(EXPR_SUBTRACT, $1, $3);}
 	| term
-		{  $$ = $1; }
+		{$$ = $1;}
 	;
 
-term	: term TOKEN_MUL factor
-		{ $$ = expr_create(EXPR_MULTIPLY,$1,$3); }
+term: term TOKEN_MUL factor
+		{$$ = expr_create(EXPR_MULTIPLY, $1, $3);}
 	| term TOKEN_DIV factor
-		{ $$ = expr_create(EXPR_DIVIDE,$1,$3); }
+		{$$ = expr_create(EXPR_DIVIDE, $1, $3);}
 	| factor
-		{   $$ = $1; }
+		{$$ = $1;}
 	;
 
-factor	: TOKEN_LPAREN expr TOKEN_RPAREN
-		{ $$ = $2; }
+factor: TOKEN_LPAREN expr TOKEN_RPAREN
+	   {$$ = $2;}
 	| TOKEN_MINUS factor
-		{ $$ = expr_create(EXPR_SUBTRACT,expr_create_value(0),$2); }
+	   {$$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2);}
 	| TOKEN_SIN TOKEN_LPAREN expr TOKEN_RPAREN
-	   { $$ = expr_create(EXPR_SIN,0,$3); }
+	   {$$ = expr_create(EXPR_SIN, 0, $3);}
 	| TOKEN_COS TOKEN_LPAREN expr TOKEN_RPAREN
-	   { $$ = expr_create(EXPR_COS,0,$3); }
+	   {$$ = expr_create(EXPR_COS, 0, $3);}
 	| TOKEN_INT
-		{ $$ = expr_create_value(atoi(yytext)); }
+	   {$$ = expr_create_value(atoi(yytext));}
+	| TOKEN_ID
+       {
+           struct KeyValuePair* var = lookup(symtab, yytext);
+           if (var) {$$ = expr_create_value(var->value);
+           } else {$$ = expr_create_value(0);}
+       }
 	;
 
 %%
@@ -95,8 +102,7 @@ encounter an error.  In principle, "str" will contain something
 useful.  In practice, it often does not.
 */
 
-int yyerror( char *str )
-{
-	printf("parse error: %s\n",str);
+int yyerror( char *str ) {
+	printf("parse error: %s\n", str);
 	return 0;
 }

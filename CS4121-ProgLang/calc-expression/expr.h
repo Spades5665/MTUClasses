@@ -18,24 +18,24 @@ typedef enum {
 	EXPR_MULTIPLY,
 	EXPR_VALUE,
 	EXPR_SIN,
-	EXPR_COS
+	EXPR_COS,
+    EXPR_VAR
 } expr_t;
 
 struct expr {
-       expr_t kind;
-       int value;
-       struct expr *left;
-       struct expr *right;
+    expr_t kind;
+    int value;
+    char *var;
+    struct expr *left;
+    struct expr *right;
 };
 
-struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
-struct expr * expr_create_value( int value );
+struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right);
+struct expr * expr_create_value(int value);
 
-void          expr_print( struct expr *e );
-void          expr_delete( struct expr *e );
-float         expr_evaluate( struct expr *e );
-
-
+void          expr_print(struct expr *e);
+void          expr_delete(struct expr *e);
+float         expr_evaluate(struct expr *e);
 
 // Define the maximum number of buckets in the hash table
 #define TABLE_SIZE 100
@@ -51,8 +51,7 @@ struct SymbolTable {
     struct KeyValuePair* table[TABLE_SIZE]; // Array of pointers to key-value pairs
 };
 
-struct KeyValuePair * getAdd_symTab(struct SymbolTable * tab, char *text);
+struct KeyValuePair* getAdd_symTab(struct SymbolTable * tab, char *text);
 
 void destroyHashTable(struct SymbolTable* ht);
 #endif
-

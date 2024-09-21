@@ -1,6 +1,4 @@
-%{
-#include "parser.h"
-%}
+%{#include "parser.h"%}
 
 %option nounput
 %option noinput
@@ -9,11 +7,12 @@ DIGIT 	[0-9]
 LETTER	[a-zA-Z_]
 
 %%
+
 sin         return TOKEN_SIN;
 cos         return TOKEN_COS;
-[ \n\r\t]*		;
-{DIGIT}*                return TOKEN_INT;
-{LETTER}*		return TOKEN_ID;
+[\n\r\t]*	;
+{DIGIT}*    return TOKEN_INT;
+{LETTER}*	return TOKEN_ID;
 \*			return TOKEN_MUL;
 \+			return TOKEN_PLUS;
 \-			return TOKEN_MINUS;
@@ -21,8 +20,9 @@ cos         return TOKEN_COS;
 \(			return TOKEN_LPAREN;
 \)			return TOKEN_RPAREN;
 \;			return TOKEN_SEMI;
+\=			return TOKEN_EQU;
 
-.			{ printf("scan error: bad token: %c\n",yytext[0]); }
+.			{printf("scan error: bad token: %c\n",yytext[0]);}
 %%
 
 /*
@@ -32,9 +32,4 @@ It could alternatively open up another file and return true,
 so that flex would keep going.
 */
 
-int yywrap()
-{
-	return 0;
-}
-
-
+int yywrap() {return 0;}

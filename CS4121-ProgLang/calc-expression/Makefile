@@ -24,3 +24,5 @@ parser.c parser.h: calc.bison
 clean:
 	rm -f parser.* parser.output scanner.c *.o calc
 
+cleanOut:
+	rm *.out
