@@ -1,5 +1,6 @@
 %{
 #include "parser.h"
+char *ID = NULL;
 %}
 
 %option nounput
@@ -12,8 +13,12 @@ LETTER	[a-zA-Z_]
 sin         return TOKEN_SIN;
 cos         return TOKEN_COS;
 [ \n\r\t]*		            ;
-{DIGIT}*    return TOKEN_INT;
-{LETTER}*	return TOKEN_ID;
+{DIGIT}+    return TOKEN_INT;
+{LETTER}+	{
+    if (ID) {free(ID);}
+    ID = strdup(yytext); 
+    return TOKEN_ID;
+}
 \*			return TOKEN_MUL;
 \+			return TOKEN_PLUS;
 \-			return TOKEN_MINUS;

@@ -50,6 +50,7 @@ struct SymbolTable {
 };
 
 struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float value);
+struct KeyValuePair * lookup(struct SymbolTable* ht, const char* key);
 struct KeyValuePair * getAddr_symTab(struct SymbolTable* tab, char* text, int val);
 
 void destroyHashTable(struct SymbolTable* ht);

@@ -149,13 +149,11 @@ struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float valu
     if (!ht->table[index]) {
         // No collision, insert at the beginning of the chain
         ht->table[index] = newPair;
-        //printf("index is %u\n", index);
 	} else {
         // Collision, insert at the end of the chain
         struct KeyValuePair* current = ht->table[index];
         while (current->next) {current = current->next;}
-		current->next = newPair;
-        //printf("Insert( ) returns index %d key %s\n,", index, ht->table[index]->key);
+		current->value = value;
 	}
     return newPair;
 }
