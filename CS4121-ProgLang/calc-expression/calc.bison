@@ -78,7 +78,7 @@ line: expr TOKEN_SEMI
 		}
 	| TOKEN_ID TOKEN_EQU expr TOKEN_SEMI
 		{
-			struct KeyValuePair *pair = getAddr_symTab(&symtab, ID, expr_evaluate($3));
+			struct KeyValuePair *pair = insert(&symtab, ID, expr_evaluate($3));
 			printf("parse successful: %s = ", pair->key);
 			expr_print($3);
 			printf("\nevaluates to: %f\n", expr_evaluate($3));

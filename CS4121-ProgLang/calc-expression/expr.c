@@ -146,15 +146,30 @@ struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float valu
     unsigned int index = hash(key);
     struct KeyValuePair* newPair = createKeyValuePair(key, value);
 
+	printf("Inserted Key: %s with Value: %f\n", key, value);
     if (!ht->table[index]) {
         // No collision, insert at the beginning of the chain
         ht->table[index] = newPair;
+		printf("New Index Made\n");
 	} else {
         // Collision, insert at the end of the chain
         struct KeyValuePair* current = ht->table[index];
-        while (current->next) {current = current->next;}
-		current->value = value;
+        
+		while (current) {
+			if (strcmp(current->key, key) == 0) {
+                current->value = value;
+				printf("Value Updated\n");
+				break;
+            }
+            if (!current->next) {
+                current->next = newPair;
+				printf("New Link Made\n");
+				break;
+            }
+            current = current->next;
+		}
 	}
+
     return newPair;
 }
 
@@ -163,6 +178,8 @@ struct KeyValuePair * lookup(struct SymbolTable* ht, const char* key) {
     unsigned int index = hash(key);
     struct KeyValuePair * current = ht->table[index];
 
+	printf("Looked up Key: %s\n", key);
+
     while (current) {
         if (strcmp(current->key, key) == 0) {return current;}
 		current = current->next;
@@ -170,6 +187,12 @@ struct KeyValuePair * lookup(struct SymbolTable* ht, const char* key) {
 
     // Key not found, return a default value (you can choose your own behavior)
     return NULL;
+}
+
+struct KeyValuePair* getAddr_symTab(struct SymbolTable *tab, char *name, int val) {
+	struct KeyValuePair* p = lookup(tab, name);
+	if (p == NULL) {p = insert(tab, name, val);}
+	return p;   
 }
 
 // Function to free memory used by the hash table
@@ -183,10 +206,4 @@ void destroyHashTable(struct SymbolTable* ht) {
             free(temp);
         }
     }
-}
-
-struct KeyValuePair* getAddr_symTab(struct SymbolTable *tab, char *name, int val) {
-	struct KeyValuePair* p = lookup(tab, name);
-	if (p == NULL) {p = insert(tab, name, val);}
-	return p;   
 }
