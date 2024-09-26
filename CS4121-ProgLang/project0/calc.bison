@@ -25,6 +25,7 @@ for use by scanner.c.
 %token TOKEN_COS
 %token TOKEN_END
 %token TOKEN_EQU
+
 %{
 
 #include <math.h>
@@ -63,7 +64,7 @@ list: list expr TOKEN_SEMI
 			printf("parse successful: ");
 			expr_print($2);
 			printf("\nevaluates to: %d\n", (int) expr_evaluate($2));
-			$$ = $1;
+			$$ = $2;
 		}
 	| expr TOKEN_SEMI
 		{
@@ -113,6 +114,8 @@ factor: TOKEN_LPAREN expr TOKEN_RPAREN
 			  $$ = expr_create(EXPR_EQU, 0, $3, pair->key, pair->value);
 		  }
 	  ;
+
+
 
 %%
 
