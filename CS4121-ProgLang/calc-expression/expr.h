@@ -19,19 +19,18 @@ typedef enum {
 	EXPR_VALUE,
 	EXPR_SIN,
 	EXPR_COS,
-    EXPR_EQU,
-    EXPR_FIN
+    EXPR_EQU
 } expr_t;
 
 struct expr {
        expr_t kind;
-       double value;
+       int value;
        struct expr *left;
        struct expr *right;
        char *key;
 };
 
-struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right, char *key, double value);
+struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right, char *key, int value);
 
 void          expr_print(struct expr *e);
 void          expr_delete(struct expr *e);
@@ -50,7 +49,7 @@ struct KeyValuePair {
 // Array of pointers to key-value pairs
 struct SymbolTable {struct KeyValuePair* table[TABLE_SIZE];};
 
-struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float value);
+struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, int value);
 struct KeyValuePair * getAddr_symTab(struct SymbolTable* tab, char* text, int val);
 
 void destroyHashTable(struct SymbolTable* ht);

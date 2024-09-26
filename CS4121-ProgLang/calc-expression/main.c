@@ -43,15 +43,12 @@ int main(int argc, char *argv[]) {
 	char *fileName = argv[1];
 	initialize(fileName);
 	
-	if (yyparse() == 0) {
-		printf("parser successful:\n");
-		expr_print(parser_result);
-		printf("\nevaluates to: %.2f\n", expr_evaluate(parser_result));
-		finalize();
-		return 0;
-	} else {
+	if (yyparse() != 0) {
 		printf("parse failed!\n");
 		finalize();
 		return 1;
 	}
+	
+	finalize();
+	return 0;
 }

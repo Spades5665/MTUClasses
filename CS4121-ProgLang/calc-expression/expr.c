@@ -5,7 +5,7 @@
 #include <string.h>
 
 // Create one node in an expression tree and return the structure.
-struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right, char *key, double value) {
+struct expr * expr_create(expr_t kind, struct expr *left, struct expr *right, char *key, int value) {
 	struct expr *e = malloc(sizeof(*e));
 
 	e->kind = kind;
@@ -28,48 +28,38 @@ void expr_delete(struct expr *e) {
 // Recursively print an expression tree by performing an in-order traversal of the tree, printing the current node between the left and right nodes.
 void expr_print(struct expr *e) {
 	if (!e) return;
+	printf("(");
+	expr_print(e->left);
 
-	if (e->kind == EXPR_FIN) {
-		expr_print(e->left);
-		printf("\n");
-		expr_print(e->right);
-	} else {
-		printf("(");
-		expr_print(e->left);
-
-		switch (e->kind) {
-			case EXPR_ADD:
-				printf("+");
-				break;
-			case EXPR_SUBTRACT:
-				printf("-");
-				break;
-			case EXPR_MULTIPLY:
-				printf("*");
-				break;
-			case EXPR_DIVIDE:
-				printf("/");
-				break;
-			case EXPR_VALUE:
-				printf("%.2f", e->value);
-				break;
-			case EXPR_SIN:
-				printf("sin ");
-				break;
-			case EXPR_COS:
-				printf("cos ");
-				break;	
-			case EXPR_EQU:
-				printf("%s = ", e->key);	
-				break;
-			case EXPR_FIN:
-				printf("\n");	
-				break;
-		}
-
-		expr_print(e->right);
-		printf(")");
+	switch (e->kind) {
+		case EXPR_ADD:
+			printf("+");
+			break;
+		case EXPR_SUBTRACT:
+			printf("-");
+			break;
+		case EXPR_MULTIPLY:
+			printf("*");
+			break;
+		case EXPR_DIVIDE:
+			printf("/");
+			break;
+		case EXPR_VALUE:
+			printf("%d", e->value);
+			break;
+		case EXPR_SIN:
+			printf("sin ");
+			break;
+		case EXPR_COS:
+			printf("cos ");
+			break;	
+		case EXPR_EQU:
+			printf("var %s = ", e->key);	
+			break;
 	}
+
+	expr_print(e->right);
+	printf(")");
 }
 
 // Recursively evaluate an expression by performing the desired operation and returning it up the tree.
@@ -102,8 +92,6 @@ float expr_evaluate(struct expr *e) {
 			return cos(r);
 		case EXPR_EQU:
 			return e->value;
-		case EXPR_FIN:
-			return e->value;
 	}
 
 	return 0;
@@ -121,7 +109,7 @@ unsigned int hash(const char* key) {
 }
 
 // Function to create a new key-value pair
-struct KeyValuePair* createKeyValuePair(const char* key, float value) {
+struct KeyValuePair* createKeyValuePair(const char* key, int value) {
     struct KeyValuePair* pair = (struct KeyValuePair*) malloc(sizeof(struct KeyValuePair));
     
 	if (pair) {
@@ -134,7 +122,7 @@ struct KeyValuePair* createKeyValuePair(const char* key, float value) {
 }
 
 // Function to insert a key-value pair into the hash table
-struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, float value) {
+struct KeyValuePair * insert(struct SymbolTable* ht, const char* key, int value) {
     unsigned int index = hash(key);
 
     if (!ht->table[index]) {

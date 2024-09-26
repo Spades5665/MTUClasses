@@ -59,9 +59,19 @@ program: list TOKEN_END
 	   ;
 
 list: list expr TOKEN_SEMI
-		{$$ = expr_create(EXPR_FIN, $1, $2, "", expr_evaluate($2));}
+		{
+			printf("parse successful: ");
+			expr_print($2);
+			printf("\nevaluates to: %d\n", (int) expr_evaluate($2));
+			$$ = $1;
+		}
 	| expr TOKEN_SEMI
-		{$$ = $1;}
+		{
+			printf("parse successful: ");
+			expr_print($1);
+			printf("\nevaluates to: %d\n", (int) expr_evaluate($1));
+			$$ = $1;
+		}
 	;
 
 expr: expr TOKEN_PLUS term
