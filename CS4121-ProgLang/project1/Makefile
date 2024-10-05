@@ -27,6 +27,9 @@ clean:
 		$(MAKE) -C $$dir clean; \
 	done
 	$(RM) $(TARGET)
+	@if ls input/*.s 1> /dev/null 2>&1; then \
+		rm input/*.s; \
+	fi
 
 docs:
 	doxygen $(DOXYGEN_SRC)

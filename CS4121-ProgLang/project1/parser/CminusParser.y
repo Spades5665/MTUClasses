@@ -29,6 +29,7 @@ char *fileName;
 extern int Cminus_lineno;
 
 extern FILE *Cminus_in;
+
 %}
 
 %name-prefix = "Cminus_"
@@ -391,6 +392,7 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{ 
+						//printf("String in: %s\n", $1);
 						printf("<StringConstant>    -> <STRING>\n");
 					}
                 ;
