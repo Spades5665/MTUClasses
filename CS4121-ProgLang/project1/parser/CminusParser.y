@@ -17,6 +17,7 @@
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
+SymTable symtab;
 
 /*********************EXTERNAL DECLARATIONS***********************/
 
@@ -32,7 +33,7 @@ extern FILE *Cminus_in;
 
 %}
 
-%name-prefix = "Cminus_"
+%define api.prefix {Cminus_}
 %defines
 
 %start Program
@@ -69,6 +70,7 @@ extern FILE *Cminus_in;
 %token DIVIDE
 %token RETURN
 %token STRING	
+%token FLOATCON
 %token INTCON
 %token MINUS
 
@@ -132,6 +134,8 @@ ProcedureBody 	: StatementList RBRACE
 DeclList    	: Type IdentifierList  SEMICOLON 
 					{
 						printf("<DeclList>          -> <Type> <IdentifierList> <SC>\n");
+						//printf("Created Variable: %s\n", $2);
+						//SymIndex(symtab, $2);
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
@@ -142,6 +146,7 @@ DeclList    	: Type IdentifierList  SEMICOLON
 IdentifierList  : VarDecl  
 		            {
 			            printf("<IdentifierList>    -> <VarDecl>\n");
+						//$$ = $1;
 		            }		
             	| IdentifierList COMMA VarDecl
 		        	{
@@ -151,7 +156,9 @@ IdentifierList  : VarDecl
 
 VarDecl 		: IDENTIFIER
 					{ 
-						printf("<VarDecl>           -> <IDENTIFIER\n");
+						printf("<VarDecl>           -> <IDENTIFIER>\n");
+						//printf("Identifier read in: %s\n", Cminus_text);
+						//$$ = $1;
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
 					{
@@ -392,14 +399,23 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{ 
-						//printf("String in: %s\n", $1);
+						//printf("String in: %s\n", Cminus_text);
+						//$$ = Cminus_text;
 						printf("<StringConstant>    -> <STRING>\n");
 					}
                 ;
 
-Constant        : INTCON
+Constant        : FLOATCON
+					{ 
+						printf("<Constant>          -> <FLOATCON>\n");
+						//printf("Float found: %f\n", $1);
+						//$$ = $1;
+					}
+				| INTCON
 					{ 
 						printf("<Constant>          -> <INTCON>\n");
+						//printf("Int found: %d\n", $1);
+						//$$ = $1;
 					}
                 ;
 
@@ -436,6 +452,7 @@ static void finalize() {
 int main(int argc, char** argv) {	
 	fileName = argv[1];
 	initialize(fileName);
+	symtab = SymInit(SYMTABLE_SIZE);
     Cminus_parse();
   	finalize();
   	return 0;

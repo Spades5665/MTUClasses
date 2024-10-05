@@ -73,6 +73,7 @@ return						{ return RETURN; }
 ","							{ return COMMA; }
 \"[^\"]*\"					{ return STRING; }
 [a-zA-Z]([a-zA-Z]|[0-9])*	{ return IDENTIFIER; }
+[0-9]+(\.[0-9]+)?			{ return FLOATCON; }
 [0-9]+						{ return INTCON; }
 {WS}						{ ; }
 "\n"						{ Cminus_lineno++; }
