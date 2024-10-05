@@ -115,8 +115,6 @@ factor: TOKEN_LPAREN expr TOKEN_RPAREN
 		  }
 	  ;
 
-
-
 %%
 
 int yyerror(char *str) {
