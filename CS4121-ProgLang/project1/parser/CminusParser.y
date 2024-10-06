@@ -17,6 +17,7 @@
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
+#define YYSTYPE char *
 
 /*********************EXTERNAL DECLARATIONS***********************/
 
@@ -70,6 +71,7 @@ extern FILE *Cminus_in;
 %token RETURN
 %token STRING	
 %token INTCON
+%token FLTCON
 %token MINUS
 
 %left OR
@@ -150,8 +152,9 @@ IdentifierList  : VarDecl
         		;
 
 VarDecl 		: IDENTIFIER
-					{ 
-						printf("<VarDecl>           -> <IDENTIFIER\n");
+					{ 				
+						printf("ID: %s\n", $1);
+						printf("<VarDecl>           -> <IDENTIFIER>\n");
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
 					{
@@ -399,9 +402,15 @@ StringConstant 	: STRING
 
 Constant        : INTCON
 					{ 
-						printf("<Constant>          -> <INTCON>\n");
+						printf("Int: %s\n", $1);
+						//printf("<Constant>          -> <INTCON>\n");
 					}
-                ;
+                | FLTCON
+					{ 
+						printf("Float: %s\n", $1);
+						//printf("<Constant>          -> <INTCON>\n");
+					}
+				;
 
 %%
 

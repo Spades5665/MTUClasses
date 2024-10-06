@@ -1,5 +1,7 @@
 WS	[ \t]
 
+typedef char* YYSTYPE;
+
 %{
 
 /* This scanner approximates the Void specification.
@@ -41,39 +43,40 @@ WS	[ \t]
 
 %%
 
-int							{ return INTEGER; }
-while						{ return WHILE; }
-else						{ return ELSE; }
-exit						{ return EXIT; }
-if							{ return IF; }
-read						{ return READ; }
-write						{ return WRITE; }
-return						{ return RETURN; }
-\!							{ return NOT; }
-"||"		    			{ return OR; }
-\&&							{ return AND; }
-\<=							{ return LE; }
-\<							{ return LT; }
-\>=							{ return GE; }
-\>							{ return GT; }
-\==							{ return EQ; }
-\!=							{ return NE; }
-\=							{ return ASSIGN; }
-\;							{ return SEMICOLON; }
-\{			    			{ return LBRACE; }
-"}"			    			{ return RBRACE; }
-\[							{ return LBRACKET; }
-\]							{ return RBRACKET; }
-\(							{ return LPAREN; }
-\)							{ return RPAREN; }
-\+							{ return PLUS; }
-\-          				{ return MINUS; }
-\*							{ return TIMES; }
-\/							{ return DIVIDE; }
-","							{ return COMMA; }
-\"[^\"]*\"					{ return STRING; }
-[a-zA-Z]([a-zA-Z]|[0-9])*	{ return IDENTIFIER; }
-[0-9]+						{ return INTCON; }
+int							{ Cminus_lval = strdup(Cminus_text); return INTEGER; }
+while						{ Cminus_lval = strdup(Cminus_text); return WHILE; }
+else						{ Cminus_lval = strdup(Cminus_text); return ELSE; }
+exit						{ Cminus_lval = strdup(Cminus_text); return EXIT; }
+if							{ Cminus_lval = strdup(Cminus_text); return IF; }
+read						{ Cminus_lval = strdup(Cminus_text); return READ; }
+write						{ Cminus_lval = strdup(Cminus_text); return WRITE; }
+return						{ Cminus_lval = strdup(Cminus_text); return RETURN; }
+\!							{ Cminus_lval = strdup(Cminus_text); return NOT; }
+"||"		    			{ Cminus_lval = strdup(Cminus_text); return OR; }
+\&&							{ Cminus_lval = strdup(Cminus_text); return AND; }
+\<=							{ Cminus_lval = strdup(Cminus_text); return LE; }
+\<							{ Cminus_lval = strdup(Cminus_text); return LT; }
+\>=							{ Cminus_lval = strdup(Cminus_text); return GE; }
+\>							{ Cminus_lval = strdup(Cminus_text); return GT; }
+\==							{ Cminus_lval = strdup(Cminus_text); return EQ; }
+\!=							{ Cminus_lval = strdup(Cminus_text); return NE; }
+\=							{ Cminus_lval = strdup(Cminus_text); return ASSIGN; }
+\;							{ Cminus_lval = strdup(Cminus_text); return SEMICOLON; }
+\{			    			{ Cminus_lval = strdup(Cminus_text); return LBRACE; }
+"}"			    			{ Cminus_lval = strdup(Cminus_text); return RBRACE; }
+\[							{ Cminus_lval = strdup(Cminus_text); return LBRACKET; }
+\]							{ Cminus_lval = strdup(Cminus_text); return RBRACKET; }
+\(							{ Cminus_lval = strdup(Cminus_text); return LPAREN; }
+\)							{ Cminus_lval = strdup(Cminus_text); return RPAREN; }
+\+							{ Cminus_lval = strdup(Cminus_text); return PLUS; }
+\-          				{ Cminus_lval = strdup(Cminus_text); return MINUS; }
+\*							{ Cminus_lval = strdup(Cminus_text); return TIMES; }
+\/							{ Cminus_lval = strdup(Cminus_text); return DIVIDE; }
+","							{ Cminus_lval = strdup(Cminus_text); return COMMA; }
+\"[^\"]*\"					{ Cminus_lval = strdup(Cminus_text); return STRING; }
+[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval = strdup(Cminus_text); return IDENTIFIER; }
+[0-9]*\.[0-9]+ 				{ Cminus_lval = strdup(Cminus_text); return FLTCON; }
+[0-9]+						{ Cminus_lval = strdup(Cminus_text); return INTCON; }
 {WS}						{ ; }
 "\n"						{ Cminus_lineno++; }
 .							{ fprintf(stderr, "Scanner: lexical error '%s'.\n", Cminus_text); }
