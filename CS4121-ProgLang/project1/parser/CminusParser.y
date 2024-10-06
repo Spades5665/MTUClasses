@@ -17,7 +17,6 @@
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
-#define YYSTYPE char *
 
 /*********************EXTERNAL DECLARATIONS***********************/
 
@@ -153,7 +152,7 @@ IdentifierList  : VarDecl
 
 VarDecl 		: IDENTIFIER
 					{ 				
-						printf("ID: %s\n", $1);
+						//printf("ID: %s\n", $1);
 						printf("<VarDecl>           -> <IDENTIFIER>\n");
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
@@ -402,13 +401,13 @@ StringConstant 	: STRING
 
 Constant        : INTCON
 					{ 
-						printf("Int: %s\n", $1);
-						//printf("<Constant>          -> <INTCON>\n");
+						//printf("Int: %s\n", $1);
+						printf("<Constant>          -> <INTCON>\n");
 					}
                 | FLTCON
 					{ 
-						printf("Float: %s\n", $1);
-						//printf("<Constant>          -> <INTCON>\n");
+						//printf("Float: %s\n", $1);
+						printf("<Constant>          -> <INTCON>\n");
 					}
 				;
 
