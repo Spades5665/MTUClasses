@@ -30,6 +30,8 @@ extern int Cminus_lineno;
 
 extern FILE *Cminus_in;
 
+extern int Cminus_lex_destroy(void);
+
 %}
 
 %name-prefix = "Cminus_"
@@ -424,17 +426,22 @@ static void initialize(char* inputFileName) {
 
 	char* dotChar = rindex(inputFileName, '.');
 	int endIndex = strlen(inputFileName) - strlen(dotChar);
-	char *outputFileName = nssave(2, substr(inputFileName, 0, endIndex), ".s");
+	char *sub = substr(inputFileName, 0, endIndex);
+	char *outputFileName = nssave(2, sub, ".s");
 	stdout = freopen(outputFileName, "w", stdout);
+	free(sub);
 	if (stdout == NULL) {
 		fprintf(stderr, "Error: Could not open file %s\n", outputFileName);
+		free(outputFileName);
 		exit(-1);
 	}
+	free(outputFileName);
 }
 
 static void finalize() {
     fclose(Cminus_in);
     fclose(stdout);
+	Cminus_lex_destroy();
 }
 
 int main(int argc, char** argv) {	
