@@ -151,9 +151,8 @@ IdentifierList  : VarDecl
         		;
 
 VarDecl 		: IDENTIFIER
-					{ 				
-						//printf("ID: %s\n", $1);
-						printf("<VarDecl>           -> <IDENTIFIER>\n");
+					{ 
+						printf("<VarDecl>           -> <IDENTIFIER\n");
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
 					{
@@ -393,20 +392,17 @@ Variable        : IDENTIFIER
                 ;			       
 
 StringConstant 	: STRING
-					{ 
-						//printf("String in: %s\n", $1);
+					{
 						printf("<StringConstant>    -> <STRING>\n");
 					}
                 ;
 
 Constant        : INTCON
-					{ 
-						//printf("Int: %s\n", $1);
+					{
 						printf("<Constant>          -> <INTCON>\n");
 					}
                 | FLTCON
-					{ 
-						//printf("Float: %s\n", $1);
+					{
 						printf("<Constant>          -> <INTCON>\n");
 					}
 				;
