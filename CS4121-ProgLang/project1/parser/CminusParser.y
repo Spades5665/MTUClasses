@@ -32,9 +32,11 @@ extern FILE *Cminus_in;
 
 extern int Cminus_lex_destroy(void);
 
+SymTable symtab;
+
 %}
 
-%name-prefix = "Cminus_"
+%define api.prefix {Cminus_}
 %defines
 
 %start Program
@@ -44,7 +46,7 @@ extern int Cminus_lex_destroy(void);
 %token EXIT
 %token FOR
 %token IF 		
-%token INTEGER 
+%token INTEGER
 %token NOT 		
 %token OR 		
 %token READ
@@ -72,7 +74,6 @@ extern int Cminus_lex_destroy(void);
 %token RETURN
 %token STRING	
 %token INTCON
-%token FLTCON
 %token MINUS
 
 %left OR
@@ -80,81 +81,106 @@ extern int Cminus_lex_destroy(void);
 %left NOT
 %left LT LE GT GE NE EQ
 %left PLUS MINUS
-%left TIMES DIVDE
+%left TIMES DIVIDE
+
+%union {
+	char *text;
+	int    num;
+}
+
+%type <text> STRING IDENTIFIER StringConstant VarDecl Variable IdentifierList DeclList
+%type <num>  INTCON Constant Factor MulExpr AddExpr SimpleExpr Expr
 
 /***********************PRODUCTIONS****************************/
 %%
 Program			: Procedures 
 					{
-						printf("<Program>           -> <Procedures>\n");
+						//printf("<Program>           -> <Procedures>\n");
 					}
 				| DeclList Procedures
 					{
-						printf("<Program>           -> <DeclList> <Procedures>\n");
+						//printf("<Program>           -> <DeclList> <Procedures>\n");
 					}
 				;
 
 Procedures 		: ProcedureDecl Procedures
 					{
-						printf("<Procedures>        -> <ProcedureDecl> <Procedures>\n");
+						//printf("<Procedures>        -> <ProcedureDecl> <Procedures>\n");
 					}
 				|
 					{
-						printf("<Procedures>        -> epsilon\n");
+						//printf("<Procedures>        -> epsilon\n");
 					}
 				;
 
 ProcedureDecl 	: ProcedureHead ProcedureBody
 					{
-						printf("<ProcedureDecl>     -> <ProcedureHead> <ProcedureBody>\n");
+						//printf("<ProcedureDecl>     -> <ProcedureHead> <ProcedureBody>\n");
 					}
 				;
 
 ProcedureHead 	: FunctionDecl DeclList 
 					{
-						printf("<ProcedureHead>     -> <FunctionDecl> <DeclList>\n");
+						//printf("<ProcedureHead>     -> <FunctionDecl> <DeclList>\n");
 					}
 				| FunctionDecl
 					{
-						printf("<ProcedureHead>     -> <FunctionDecl>\n");
+						//printf("<ProcedureHead>     -> <FunctionDecl>\n");
 					}
 				;
 
 FunctionDecl 	:  Type IDENTIFIER LPAREN RPAREN LBRACE 
 					{
-						printf("<FunctionDecl>      -> <Type> <IDENTIFIER> <LP> <RP> <LBR>\n"); 
+						//printf("<FunctionDecl>      -> <Type> <IDENTIFIER> <LP> <RP> <LBR>\n"); 
 					}
 				;
 
 ProcedureBody 	: StatementList RBRACE
 					{
-						printf("<ProcedureBody>     -> <StatementList> <RBR>\n");
+						//printf("<ProcedureBody>     -> <StatementList> <RBR>\n");
 					}
 				;
 
-DeclList    	: Type IdentifierList  SEMICOLON 
+DeclList    	: Type IdentifierList SEMICOLON 
 					{
-						printf("<DeclList>          -> <Type> <IdentifierList> <SC>\n");
+						//printf("<DeclList>          -> <Type> <IdentifierList> <SC>\n");
+						char* id = strtok($2, ",");
+					
+						while (id != NULL) {
+							SymIndex(symtab, id);
+							id = strtok(NULL, ",");
+						}
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
-						printf("<DeclList>          -> <DeclList> <Type> <IdentifierList> <SC>\n");
+						//printf("<DeclList>          -> <DeclList> <Type> <IdentifierList> <SC>\n");
+						char* id = strtok($3, ",");
+					
+						while (id != NULL) {
+							SymIndex(symtab, id);
+							id = strtok(NULL, ",");
+						}
 					}
 				;
 
 IdentifierList  : VarDecl  
 		            {
-			            printf("<IdentifierList>    -> <VarDecl>\n");
+			            //printf("<IdentifierList>    -> <VarDecl>\n");
+						$$ = $1;
 		            }		
             	| IdentifierList COMMA VarDecl
 		        	{
-			        	printf("<IdentifierList>    -> <IdentifierList> <CM> <VarDecl>\n");
+			        	//printf("<IdentifierList>    -> <IdentifierList> <CM> <VarDecl>\n");
+						strcat($1, ",");
+						strcat($1, $3);
+						$$ = $1;
 		    		}
         		;
 
 VarDecl 		: IDENTIFIER
 					{ 
-						printf("<VarDecl>           -> <IDENTIFIER\n");
+						//printf("<VarDecl>           -> <IDENTIFIER\n");
+						$$ = $1;
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
 					{
@@ -164,13 +190,13 @@ VarDecl 		: IDENTIFIER
 
 Type     		: INTEGER 
 					{ 
-						printf("<Type>              -> <INTEGER>\n");
+						//printf("<Type>              -> <INTEGER>\n");
 					}
                 ;
 
 Statement 		: Assignment
 					{ 
-						printf("<Statement>         -> <Assignment>\n");
+						//printf("<Statement>         -> <Assignment>\n");
 					}
 				| IfStatement
 					{ 
@@ -182,7 +208,7 @@ Statement 		: Assignment
 					}
 				| IOStatement 
 					{ 
-						printf("<Statement>         -> <IOStatement>\n");
+						//printf("<Statement>         -> <IOStatement>\n");
 					}
 				| ReturnStatement
 					{ 
@@ -200,7 +226,8 @@ Statement 		: Assignment
 
 Assignment      : Variable ASSIGN Expr SEMICOLON
 					{
-						printf("<Assignment>        -> <Variable> <ASSIGN> <Expr> <SC>\n");
+						//printf("<Assignment>        -> <Variable> <ASSIGN> <Expr> <SC>\n");
+						SymPutField(symtab, $1, $1, $3);
 					}
                 ;
 				
@@ -213,8 +240,7 @@ IfStatement		: IF TestAndThen ELSE CompoundStatement
 						printf("<IfStatement>       -> <IF> <TestAndThen>\n");
 					}
 				;
-		
-				
+					
 TestAndThen		: Test CompoundStatement
 					{
 						printf("<TestAndThen>       -> <Test> <CompoundStatement>\n");
@@ -227,7 +253,6 @@ Test			: LPAREN Expr RPAREN
 					}
 				;
 	
-
 WhileStatement  : WhileToken WhileExpr Statement
 					{
 						printf("<WhileStatement>    -> <WhileToken> <WhileExpr> <Statement>\n");
@@ -246,18 +271,23 @@ WhileToken		: WHILE
 					}
 				;
 
-
 IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					{
-						printf("<IOStatement>       -> <READ> <LP> <Variable> <RP> <SC>\n");
+						//printf("<IOStatement>       -> <READ> <LP> <Variable> <RP> <SC>\n");
+						int val;
+						scanf("%d", &val);
+						SymPutField(symtab, $3, $3, val);
 					}
                 | WRITE LPAREN Expr RPAREN SEMICOLON
 					{
-						printf("<IOStatement>       -> <WRITE> <LP> <Expr> <RP> <SC>\n");
+						//printf("<IOStatement>       -> <WRITE> <LP> <Expr> <RP> <SC>\n");
+						printf("%d\n", $3);
 					}
                 | WRITE LPAREN StringConstant RPAREN SEMICOLON         
 					{
-						printf("<IOStatement>       -> <WRITE> <LP> <StringConstant> <RP> <SC>\n");
+						//printf("<IOStatement>       -> <WRITE> <LP> <StringConstant> <RP> <SC>\n");
+						printf("%s\n", $3);
+						free($3);
 					}
                 ;
 
@@ -281,97 +311,120 @@ CompoundStatement: LBRACE StatementList RBRACE
 
 StatementList   : Statement
 					{		
-						printf("<StatementList>     -> <Statement>\n");
+						//printf("<StatementList>     -> <Statement>\n");
 					}
                 | StatementList Statement
 					{		
-						printf("<StatementList>     -> <StatementList> <Statement>\n");
+						//printf("<StatementList>     -> <StatementList> <Statement>\n");
 					}
                 ;
 
 Expr            : SimpleExpr
 					{
-						printf("<Expr>              -> <SimpleExpr>\n");
+						//printf("<Expr>              -> <SimpleExpr>\n");
+						$$ = $1;
 					}
                 | Expr OR SimpleExpr 
 					{
-						printf("<Expr>              -> <Expr> <OR> <SimpleExpr>\n");
+						//printf("<Expr>              -> <Expr> <OR> <SimpleExpr>\n");
+						$$ = $1 || $3;
 					}
                 | Expr AND SimpleExpr 
 					{
-						printf("<Expr>              -> <Expr> <AND> <SimpleExpr>\n");
+						//printf("<Expr>              -> <Expr> <AND> <SimpleExpr>\n");
+						$$ = $1 && $3;
 					}
                 | NOT SimpleExpr 
 					{
-						printf("<Expr>              -> <NOT> <SimpleExpr>\n");
+						//printf("<Expr>              -> <NOT> <SimpleExpr>\n");
+						$$ = !$2;
 					}
                 ;
 
 SimpleExpr		: AddExpr
 					{
-						printf("<SimpleExpr>        -> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <AddExpr>\n");
+						$$ = $1;
 					}
                 | SimpleExpr EQ AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <EQ> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <EQ> <AddExpr>\n");
+						$$ = $1 == $3;
 					}
                 | SimpleExpr NE AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <NE> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <NE> <AddExpr>\n");
+						$$ = $1 != $3;
 					}
                 | SimpleExpr LE AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <LE> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <LE> <AddExpr>\n");
+						$$ = $1 <= $3;
 					}
                 | SimpleExpr LT AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <LT> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <LT> <AddExpr>\n");
+						$$ = $1 < $3;
 					}
                 | SimpleExpr GE AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <GE> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <GE> <AddExpr>\n");
+						$$ = $1 >= $3;
 					}
                 | SimpleExpr GT AddExpr
 					{
-						printf("<SimpleExpr>        -> <SimpleExpr> <GT> <AddExpr>\n");
+						//printf("<SimpleExpr>        -> <SimpleExpr> <GT> <AddExpr>\n");
+						$$ = $1 > $3;
 					}
                 ;
 
 AddExpr			:  MulExpr            
 					{
-						printf("<AddExpr>           -> <MulExpr>\n");
+						//printf("<AddExpr>           -> <MulExpr>\n");
+						$$ = $1;
 					}
                 |  AddExpr PLUS MulExpr
 					{
-						printf("<AddExpr>           -> <AddExpr> <PLUS> <MulExpr>\n");
+						//printf("<AddExpr>           -> <AddExpr> <PLUS> <MulExpr>\n");
+						$$ = $1 + $3;
 					}
                 |  AddExpr MINUS MulExpr
 					{
-						printf("<AddExpr>           -> <AddExpr> <MINUS> <MulExpr>\n");
+						//printf("<AddExpr>           -> <AddExpr> <MINUS> <MulExpr>\n");
+						$$ = $1 - $3;
 					}
                 ;
 
 MulExpr			:  Factor
 					{
-						printf("<MulExpr>           -> <Factor>\n");
+						//printf("<MulExpr>           -> <Factor>\n");
+						$$ = $1;
 					}
                 |  MulExpr TIMES Factor
 					{
-						printf("<MulExpr>           -> <MulExpr> <TIMES> <Factor>\n");
+						//printf("<MulExpr>           -> <MulExpr> <TIMES> <Factor>\n");
+						$$ = $1 * $3;
 					}
                 |  MulExpr DIVIDE Factor
 					{
-						printf("<MulExpr>           -> <MulExpr> <DIVIDE> <Factor>\n");
+						//printf("<MulExpr>           -> <MulExpr> <DIVIDE> <Factor>\n");
+						if ($3 == 0) {
+							fprintf(stderr, "Hey DUMBASS no divide by 0\n");
+							exit(1);
+						}
+						$$ = $1 / $3;
 					}		
                 ;
 				
 Factor          : Variable
 					{ 
-						printf("<Factor>            -> <Variable>\n");
+						//printf("<Factor>            -> <Variable>\n");
+						$$ = (int) SymGetField(symtab, $1, $1);
 					}
                 | Constant
 					{ 
-						printf("<Factor>            -> <Constant>\n");
+						//printf("<Factor>            -> <Constant>\n");
+						$$ = $1;
 					}
                 | IDENTIFIER LPAREN RPAREN
 					{	
@@ -379,13 +432,15 @@ Factor          : Variable
 					}
          		| LPAREN Expr RPAREN
 					{
-						printf("<Factor>            -> <LP> <Expr> <RP>\n");
+						//printf("<Factor>            -> <LP> <Expr> <RP>\n");
+						$$ = $2;
 					}
                 ;  
 
 Variable        : IDENTIFIER
 					{
-						printf("<Variable>          -> <IDENTIFIER>\n");
+						//printf("<Variable>          -> <IDENTIFIER>\n");
+						$$ = $1;
 					}
                 | IDENTIFIER LBRACKET Expr RBRACKET    
 					{
@@ -395,17 +450,15 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{
-						printf("<StringConstant>    -> <STRING>\n");
+						//printf("<StringConstant>    -> <STRING>\n");
+						$$ = $1;
 					}
                 ;
 
 Constant        : INTCON
 					{
-						printf("<Constant>          -> <INTCON>\n");
-					}
-                | FLTCON
-					{
-						printf("<Constant>          -> <INTCON>\n");
+						//printf("<Constant>          -> <INTCON>\n");
+						$$ = $1;
 					}
 				;
 
@@ -441,12 +494,14 @@ static void initialize(char* inputFileName) {
 static void finalize() {
     fclose(Cminus_in);
     fclose(stdout);
+	SymKill(symtab);
 	Cminus_lex_destroy();
 }
 
 int main(int argc, char** argv) {	
 	fileName = argv[1];
 	initialize(fileName);
+	symtab = SymInit(SYMTABLE_SIZE);
     Cminus_parse();
   	finalize();
   	return 0;
