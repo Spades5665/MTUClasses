@@ -132,6 +132,7 @@ ProcedureHead 	: FunctionDecl DeclList
 FunctionDecl 	:  Type IDENTIFIER LPAREN RPAREN LBRACE 
 					{
 						//printf("<FunctionDecl>      -> <Type> <IDENTIFIER> <LP> <RP> <LBR>\n"); 
+						free($2);
 					}
 				;
 
@@ -150,6 +151,8 @@ DeclList    	: Type IdentifierList SEMICOLON
 							SymIndex(symtab, id);
 							id = strtok(NULL, ",");
 						}
+						free(id);
+						free($2);
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
@@ -160,6 +163,8 @@ DeclList    	: Type IdentifierList SEMICOLON
 							SymIndex(symtab, id);
 							id = strtok(NULL, ",");
 						}
+						free(id);
+						free($3);
 					}
 				;
 
@@ -170,10 +175,14 @@ IdentifierList  : VarDecl
 		            }		
             	| IdentifierList COMMA VarDecl
 		        	{
-			        	//printf("<IdentifierList>    -> <IdentifierList> <CM> <VarDecl>\n");
-						strcat($1, ",");
-						strcat($1, $3);
-						$$ = $1;
+			        	//printf("<IdentifierList>    -> <IdentifierList> <CM> <VarDecl>\n");    
+						char *copy = (char *)malloc((strlen($1) + strlen($3) + 2) * sizeof(char));
+						strcpy(copy, $1);
+						strcat(copy, ",");
+						strcat(copy, $3); 
+						free($1);
+						free($3);
+						$$ = copy;
 		    		}
         		;
 
@@ -227,7 +236,12 @@ Statement 		: Assignment
 Assignment      : Variable ASSIGN Expr SEMICOLON
 					{
 						//printf("<Assignment>        -> <Variable> <ASSIGN> <Expr> <SC>\n");
+						if (SymQueryIndex(symtab, $1) == -1) {
+							fprintf(stderr, "ERROR --- Variable: %s not declared\n", $1);
+							exit(1);
+						}
 						SymPutField(symtab, $1, $1, $3);
+						free($1);
 					}
                 ;
 				
@@ -277,6 +291,7 @@ IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 						int val;
 						scanf("%d", &val);
 						SymPutField(symtab, $3, $3, val);
+						free($3);
 					}
                 | WRITE LPAREN Expr RPAREN SEMICOLON
 					{
@@ -409,7 +424,7 @@ MulExpr			:  Factor
 					{
 						//printf("<MulExpr>           -> <MulExpr> <DIVIDE> <Factor>\n");
 						if ($3 == 0) {
-							fprintf(stderr, "Hey DUMBASS no divide by 0\n");
+							fprintf(stderr, "ERROR --- Hey DUMBASS no divide by 0\n");
 							exit(1);
 						}
 						$$ = $1 / $3;
@@ -419,7 +434,12 @@ MulExpr			:  Factor
 Factor          : Variable
 					{ 
 						//printf("<Factor>            -> <Variable>\n");
+						if (SymGetField(symtab, $1, $1) == 0) {
+							fprintf(stderr, "ERROR --- Variable: %s not initialized\n", $1);
+							exit(1);
+						}
 						$$ = (int) SymGetField(symtab, $1, $1);
+						free($1);
 					}
                 | Constant
 					{ 
