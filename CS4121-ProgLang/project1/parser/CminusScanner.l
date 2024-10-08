@@ -40,9 +40,9 @@ return						{ return RETURN; }
 \*							{ return TIMES; }
 \/							{ return DIVIDE; }
 ","							{ return COMMA; }
-\"[^\"]*\"					{ Cminus_lval.text = strdup(Cminus_text); return STRING; }
-[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval.text = strdup(Cminus_text); return IDENTIFIER; }
-[0-9]+						{ Cminus_lval.num = atoi(Cminus_text); return INTCON; }
+\"[^\"]*\"					{ Cminus_lval.text = strdup(Cminus_text); return STRING; }     // Creates a copy of the token text and returns it to parser
+[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval.text = strdup(Cminus_text); return IDENTIFIER; } // Creates a copy of the token text and returns it to parser
+[0-9]+						{ Cminus_lval.num = atoi(Cminus_text); return INTCON; }        // Creates an int from the token text and returns it to parser
 [ \r\t]						{ ; }
 "\n"						{ Cminus_lineno++; }
 .							{ fprintf(stderr, "Scanner lexical error: unrecognized token %s at line %d.\n", Cminus_text, Cminus_lineno); }
