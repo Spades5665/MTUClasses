@@ -228,11 +228,8 @@ Statement 		: Assignment
 
 Assignment      : Variable ASSIGN Expr SEMICOLON
 					{
-						if (SymQueryIndex(symtab, $1) == -1) {                             // Checks if the variable has been initialized globally
-							fprintf(stderr, "ERROR --- Variable: %s not declared\n", $1);  
-							exit(1);
-						}
-						SymPutField(symtab, $1, $1, $3);                                   // Adds the value to the variable in the table
+
+						SymPutField(symtab, $1, $1, $3); // Adds the value to the variable in the table
 						free($1);
 					}
                 ;
@@ -405,10 +402,6 @@ MulExpr			:  Factor
 				
 Factor          : Variable
 					{ 
-						if (SymGetField(symtab, $1, $1) == 0) {                               // Based on your code, default values are 0 so a variable is not initialized if its value is 0
-							fprintf(stderr, "ERROR --- Variable: %s not initialized\n", $1);
-							exit(1);
-						}
 						$$ = (int) SymGetField(symtab, $1, $1); // Gets the value from the table
 						free($1);
 					}
@@ -438,11 +431,11 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{
-						char *copy = (char *) malloc((strlen($1) - 1) * sizeof(char)); 
-						for (int i = 1; i < strlen($1) - 1; i++) {
-							copy[i - 1] = $1[i];
+						char *copy = (char *) malloc((strlen($1) - 1) * sizeof(char)); // Creates a string for removing the quotes
+						for (int i = 1; i < strlen($1) - 1; i++) {                     // Removes the first and last character in $1 and stores it in copy
+							copy[i - 1] = $1[i];             
 						}
-						copy[strlen($1) - 2] = '\0';
+						copy[strlen($1) - 2] = '\0';                                   // Adds the null terminator
 						free($1);
 						$$ = copy;
 					}
