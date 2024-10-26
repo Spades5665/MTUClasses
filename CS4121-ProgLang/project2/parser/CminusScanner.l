@@ -1,5 +1,3 @@
-WS	[ \t]
-
 %{
 
 /* This scanner approximates the Void specification.
@@ -25,8 +23,7 @@ WS	[ \t]
  * You can either edit the flex spec or edit the constant defintions.  (Of
  * course, you should do that on your own copy!)  
  *
- */
-
+*/
 
 #include <stdio.h>
 #include <util/symtab.h>
@@ -39,49 +36,44 @@ extern SymTable symtab;
 %}
 
 %option bison-bridge
-%option prefix="Cminus_"
+%option prefix = "Cminus_"
 
 %%
+int				            { return INTEGER; }
+while			        	{ return WHILE; }
+else				        { return ELSE; }
+exit				        { return EXIT; }
+if			            	{ return IF; }
+read				        { return READ; }
+write				        { return WRITE; }
+return				        { return RETURN; }
+\!				            { return NOT; }
+"||"		          		{ return OR; }
+\&&				            { return AND; }
+\<=				            { return LE; }
+\<				            { return LT; }
+\>=				            { return GE; }
+\>				            { return GT; }
+\==				            { return EQ; }
+\!=				            { return NE; }
+\=				            { return ASSIGN; }
+\;				            { return SEMICOLON; }
+\{			    	        { return LBRACE; }
+"}"			            	{ return RBRACE; }
+\[				            { return LBRACKET; }
+\]				            { return RBRACKET; }
+\(				            { return LPAREN; }
+\)				            { return RPAREN; }
+\+				            { return PLUS; }
+\-          			    { return MINUS; }
+\*				            { return TIMES; }
+\/				            { return DIVIDE; }
+","				            { return COMMA; }
+\"[^\"]*\"			        { Cminus_lval = SymIndex(symtab, substr(Cminus_text, 1, Cminus_leng-2)); return STRING; }
+[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval = SymIndex(symtab, ssave(Cminus_text)); return IDENTIFIER; }
+[0-9]+				        { Cminus_lval = atoi(Cminus_text); return INTCON; }
+[ \r\t]				        { ; }
+"\n"				        { Cminus_lineno++; }
 
-int				{ return INTEGER;}
-while				{ return WHILE; }
-else				{ return ELSE; }
-exit				{ return EXIT; }
-if				{ return IF; }
-read				{ return READ; }
-write				{ return WRITE; }
-return				{ return RETURN; }
-
-\!				{ return NOT;}
-"||"		    		{ return OR;}
-\&&				{ return AND;}
-\<=				{ return LE; }
-\<				{ return LT; }
-\>=				{ return GE; }
-\>				{ return GT; }
-\==				{ return EQ; }
-\!=				{ return NE; }
-\=				{ return ASSIGN; }
-\;				{ return SEMICOLON; }
-\{			    	{ return LBRACE; }
-"}"			    	{ return RBRACE; }
-\[				{ return LBRACKET; }
-\]				{ return RBRACKET; }
-\(				{ return LPAREN; }
-\)				{ return RPAREN; }
-\+				{ return PLUS; }
-\-          			{ return MINUS; }
-\*				{ return TIMES; }
-\/				{ return DIVIDE;}
-","				{ return COMMA;}
-\"[^\"]*\"			{ Cminus_lval = SymIndex(symtab, substr(Cminus_text, 1, Cminus_leng-2));
-                                  return STRING; }
-[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval = SymIndex(symtab, ssave(Cminus_text)); 
-                                  return IDENTIFIER; }
-[0-9]+				{ Cminus_lval = atoi(Cminus_text); return INTCON; }
-{WS}				{ ; }
-"\n"				{ Cminus_lineno++;}
-.				{
-					fprintf(stderr, "Scanner: lexical error '%s'.\n", Cminus_text); 
-				}
+.				            { fprintf(stderr, "Scanner: lexical error '%s'.\n", Cminus_text); }
 %%
