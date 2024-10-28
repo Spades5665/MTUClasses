@@ -104,17 +104,17 @@ Procedures 		: ProcedureDecl Procedures
 
 ProcedureDecl 	: ProcedureHead ProcedureBody
 					{
-						
+						genEnd();
 					}
 				;
 
 ProcedureHead 	: FunctionDecl DeclList 
 					{
-						
+						genMain();
 					}
 	      		| FunctionDecl
 					{
-						
+						genMain();
 					}
               	;	
 
@@ -131,9 +131,9 @@ ProcedureBody 	: StatementList RBRACE
 				;
 
 
-DeclList 		: Type IdentifierList  SEMICOLON 
+DeclList 		: Type IdentifierList SEMICOLON 
 					{
-						
+						genSpace(( 4 * ($2 + 1) ));
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
@@ -144,18 +144,18 @@ DeclList 		: Type IdentifierList  SEMICOLON
 
 IdentifierList 	: VarDecl  
 					{
-						
+						$$ = $1;
 					}
 									
 				| IdentifierList COMMA VarDecl
 					{
-						
+						$$ = $3;
 					}
                 ;
 
 VarDecl 		: IDENTIFIER
 					{ 
-						
+						$$ = $1;
 					}
 				| IDENTIFIER LBRACKET INTCON RBRACKET
 					{
@@ -256,11 +256,11 @@ IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					}
 				| WRITE LPAREN Expr RPAREN SEMICOLON
 					{
-						printf("%d\n", $3);
+						//printf("%d\n", $3);
 					}
 				| WRITE LPAREN StringConstant RPAREN SEMICOLON         
 					{
-						printf("%s\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD));
+						//printf("%s\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD));
 					}
                 ;
 
@@ -398,8 +398,9 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{ 
+						genString((char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD));
 						$$ = $1;
-					}
+					} 
                 ;
 
 Constant        : INTCON
