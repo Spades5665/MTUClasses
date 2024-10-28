@@ -120,7 +120,7 @@ ProcedureHead 	: FunctionDecl DeclList
 
 FunctionDecl 	:  Type IDENTIFIER LPAREN RPAREN LBRACE 
 					{
-						
+						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $2, SYM_NAME_FIELD), $2);
 					}
 				;
 
@@ -130,10 +130,9 @@ ProcedureBody 	: StatementList RBRACE
 					}
 				;
 
-
 DeclList 		: Type IdentifierList SEMICOLON 
 					{
-						genSpace(( 4 * ($2 + 1) ));
+						//genSpace(( 4 * ($2 + 1) ));
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
@@ -141,14 +140,15 @@ DeclList 		: Type IdentifierList SEMICOLON
 					}
 				;
 
-
 IdentifierList 	: VarDecl  
 					{
+						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD), $1);
 						$$ = $1;
 					}
 									
 				| IdentifierList COMMA VarDecl
 					{
+						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD), $3);
 						$$ = $3;
 					}
                 ;
@@ -214,7 +214,6 @@ IfStatement		: IF TestAndThen ELSE CompoundStatement
 						
 					}
 				;
-		
 				
 TestAndThen		: Test CompoundStatement
 					{
@@ -228,7 +227,6 @@ Test			: LPAREN Expr RPAREN
 					}
 				;
 	
-
 WhileStatement  : WhileToken WhileExpr Statement
 					{
 						
@@ -246,7 +244,6 @@ WhileToken		: WHILE
 						
 					}
 				;
-
 
 IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					{
@@ -409,8 +406,6 @@ Constant        : INTCON
 					}
                 ;
 %%
-
-
 /********************C ROUTINES *********************************/
 
 void Cminus_error(const char *s) {

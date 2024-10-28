@@ -9,9 +9,12 @@
 #include "symfields.h"
 #include "types.h"
 
+
+
 void genMain() {
     char *inst = nssave(1, ".text\n.globl main\nmain:\tnop");
     printf("%s\n", inst);
+    return inst;
 }
 
 void genEnd() {
@@ -26,6 +29,6 @@ void genSpace(int num) {
 }
 
 void genString(char * string) {
-    char *inst = nssave(4, "msg: .asciiz ", "\"", string, "\"");
+    char *inst = nssave(4, "str: .asciiz ", "\"", string, "\"");
     printf("%s\n", inst);
 }
