@@ -69,8 +69,18 @@ return				        { return RETURN; }
 \*				            { return TIMES; }
 \/				            { return DIVIDE; }
 ","				            { return COMMA; }
-\"[^\"]*\"			        { Cminus_lval = SymIndex(symtab, substr(Cminus_text, 1, Cminus_leng-2)); return STRING; }
-[a-zA-Z]([a-zA-Z]|[0-9])*	{ Cminus_lval = SymIndex(symtab, ssave(Cminus_text)); return IDENTIFIER; }
+\"[^\"]*\"			        { 
+                                char * sub = substr(Cminus_text, 1, Cminus_leng-2);
+                                Cminus_lval = SymIndex(symtab, sub); 
+                                free(sub);
+                                return STRING; 
+                            }
+[a-zA-Z]([a-zA-Z]|[0-9])*	{ 
+                                char * temp = ssave(Cminus_text);
+                                Cminus_lval = SymIndex(symtab, temp); 
+                                free(temp);
+                                return IDENTIFIER;
+                            }
 [0-9]+				        { Cminus_lval = atoi(Cminus_text); return INTCON; }
 [ \r\t]				        { ; }
 "\n"				        { Cminus_lineno++; }

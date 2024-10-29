@@ -12,8 +12,3 @@
 #define SYSCALL_EXIT          "10"	/**< The syscall code for exiting the interpreter */
 
 #endif /*CODEGEN_H_*/
-
-void genMain();
-void genEnd();
-void genSpace(int num);
-void genString(char * string);

@@ -16,7 +16,6 @@
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
-#define SYMTAB_VALUE_FIELD     "value"
 
 /*********************EXTERNAL DECLARATIONS***********************/
 
@@ -27,6 +26,7 @@ EXTERN(int, Cminus_lex, (void));
 char *fileName;
 
 SymTable symtab;
+SymTable regSymTab;
 
 extern int Cminus_lineno;
 
@@ -104,23 +104,23 @@ Procedures 		: ProcedureDecl Procedures
 
 ProcedureDecl 	: ProcedureHead ProcedureBody
 					{
-						genEnd();
+						//genEnd();
 					}
 				;
 
 ProcedureHead 	: FunctionDecl DeclList 
 					{
-						genMain();
+						//genMain();
 					}
 	      		| FunctionDecl
 					{
-						genMain();
+						//genMain();
 					}
               	;	
 
 FunctionDecl 	:  Type IDENTIFIER LPAREN RPAREN LBRACE 
 					{
-						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $2, SYM_NAME_FIELD), $2);
+						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $2, SYM_NAME_FIELD), $2);
 					}
 				;
 
@@ -142,13 +142,13 @@ DeclList 		: Type IdentifierList SEMICOLON
 
 IdentifierList 	: VarDecl  
 					{
-						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD), $1);
+						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD), $1);
 						$$ = $1;
 					}
 									
 				| IdentifierList COMMA VarDecl
 					{
-						printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD), $3);
+						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD), $3);
 						$$ = $3;
 					}
                 ;
@@ -257,7 +257,8 @@ IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					}
 				| WRITE LPAREN StringConstant RPAREN SEMICOLON         
 					{
-						//printf("%s\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD));
+						genWriteStr($3);
+						genNewLine();
 					}
                 ;
 
@@ -343,11 +344,11 @@ AddExpr			:  MulExpr
 					}
 				|  AddExpr PLUS MulExpr
 					{
-						$$ = $1 + $3;
+						$$ = genArith(regSymTab, $1, $3, "add");
 					}
 				|  AddExpr MINUS MulExpr
 					{
-						$$ = $1 - $3;
+						$$ = genArith(regSymTab, $1, $3, "sub");
 					}
                 ;
 
@@ -357,11 +358,11 @@ MulExpr			:  Factor
 					}
 				|  MulExpr TIMES Factor
 					{
-						$$ = $1 * $3;
+						$$ = genArith(regSymTab, $1, $3, "mul");
 					}
 				|  MulExpr DIVIDE Factor
 					{
-						$$ = $1 / $3;
+						$$ = genArith(regSymTab, $1, $3, "div");
 					}		
                 ;
 				
@@ -395,14 +396,13 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{ 
-						genString((char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD));
-						$$ = $1;
+						$$ = genString(symtab, $1);
 					} 
                 ;
 
 Constant        : INTCON
 					{ 
-						$$ = $1;
+						$$ = genInt(regSymTab, $1);
 					}
                 ;
 %%
@@ -425,22 +425,34 @@ static void initialize(char* inputFileName) {
 
 	char* dotChar = rindex(inputFileName, '.');
 	int endIndex = strlen(inputFileName) - strlen(dotChar);
-	char *outputFileName = nssave(2, substr(inputFileName, 0, endIndex), ".s");
+	char * sub = substr(inputFileName, 0, endIndex);
+	char *outputFileName = nssave(2, sub, ".s");
+	free(sub);
 	stdout = freopen(outputFileName, "w", stdout);
 	if (stdout == NULL) {
 		fprintf(stderr, "Error: Could not open file %s\n", outputFileName);
+		free(outputFileName);
 		exit(-1);
 	}
 
+	free(outputFileName);
 	symtab = SymInit(SYMTABLE_SIZE);
-	SymInitField(symtab, SYMTAB_VALUE_FIELD, (Generic) -1, NULL);
+	regSymTab = SymInit(SYMTABLE_SIZE);
+	SymInitField(symtab, SYM_VALUE_FIELD, (Generic) -1, NULL);
+	SymInitField(symtab, SYM_VARNAME_FIELD, (Generic) -1, NULL);
+
+	initRegisters();
 }
 
 static void finalize() {
-    SymKillField(symtab, SYMTAB_VALUE_FIELD);
+    cleanupRegisters();
+	SymKillField(symtab, SYM_VALUE_FIELD);
+	SymKillField(symtab, SYM_VARNAME_FIELD);
     SymKill(symtab);
+	SymKill(regSymTab);
     fclose(Cminus_in);
     fclose(stdout);
+	Cminus_lex_destroy();
 }
 
 int main(int argc, char** argv) {	
@@ -452,10 +464,10 @@ int main(int argc, char** argv) {
 }
 
 int getValue(int index) {
-	return (int) SymGetFieldByIndex(symtab, index, SYMTAB_VALUE_FIELD); 
+	return (int) SymGetFieldByIndex(symtab, index, SYM_VALUE_FIELD); 
 }
 
 int setValue(int index, int value) {
-	SymPutFieldByIndex(symtab, index, SYMTAB_VALUE_FIELD, (Generic) value); 
+	SymPutFieldByIndex(symtab, index, SYM_VALUE_FIELD, (Generic) value); 
 }
 /******************END OF C ROUTINES**********************/

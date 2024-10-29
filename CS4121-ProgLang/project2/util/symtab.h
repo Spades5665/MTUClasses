@@ -44,5 +44,7 @@ EXTERN(void, SymDump, (SymTable ip));
 
 #define SYM_INVALID_INDEX  -1
 #define SYM_NAME_FIELD     "name"
+#define SYM_VALUE_FIELD    "value"
+#define SYM_VARNAME_FIELD  "VARNAME"
 
 #endif /* SYMTAB_H_ */
