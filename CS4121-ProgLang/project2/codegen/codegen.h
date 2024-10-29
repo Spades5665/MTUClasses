@@ -11,4 +11,17 @@
 #define SYSCALL_READ_FLOAT    "6"   /**< The syscall code for reading a float */
 #define SYSCALL_EXIT          "10"	/**< The syscall code for exiting the interpreter */
 
+void genMain(DLinkList * instructions);
+void genEnd(DLinkList * instructions);
+int genString(DLinkList * declarations, SymTable symtab, int index);
+void genNewLine(DLinkList * instructions);
+int genInt(DLinkList * instructions, SymTable regSymTab, int n);
+int genArith(DLinkList * instructions, SymTable regSymTab, int leftInd, int rightInd, char * type);
+void genWriteStr(DLinkList * instructions, int index);
+void genWriteNum(DLinkList * instructions, int resultInd);
+void genRead(DLinkList * instructions, SymTable regSymTab, int index, int offset);
+void genSpace(DLinkList * instructions, int n);
+void genAssign(DLinkList * instructions, SymTable regSymTab, int index, int resultInd, int offset);
+int genVal(DLinkList * instructions, SymTable regSymTab, int index, int offset);
+
 #endif /*CODEGEN_H_*/

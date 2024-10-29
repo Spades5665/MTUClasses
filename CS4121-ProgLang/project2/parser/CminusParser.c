@@ -83,7 +83,7 @@
 #include <util/general.h>
 #include "../util/symtab.h"
 #include <util/symtab_stack.h>
-#include <util/dlink.h>
+#include "../util/dlink.h"
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
@@ -98,12 +98,15 @@ char *fileName;
 
 SymTable symtab;
 SymTable regSymTab;
+DLinkList * declarations;
+DLinkList * instructions;
+int mainSet = 0;
 
 extern int Cminus_lineno;
 
 extern FILE *Cminus_in;
 
-#line 107 "CminusParser.c"
+#line 110 "CminusParser.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -590,13 +593,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    85,    85,    89,    95,   100,   105,   111,   115,   121,
-     127,   133,   137,   143,   149,   156,   160,   166,   172,   176,
-     180,   184,   188,   192,   196,   202,   208,   212,   218,   224,
-     230,   236,   242,   248,   254,   258,   266,   272,   278,   284,
-     288,   294,   298,   302,   306,   312,   316,   320,   324,   328,
-     332,   336,   342,   346,   350,   356,   360,   364,   370,   374,
-     378,   382,   388,   392,   398,   404
+       0,    88,    88,   102,   118,   123,   128,   134,   138,   144,
+     150,   156,   160,   166,   171,   177,   181,   187,   193,   197,
+     201,   205,   209,   213,   217,   223,   229,   233,   239,   245,
+     251,   257,   263,   269,   273,   277,   283,   289,   295,   301,
+     305,   311,   315,   319,   323,   329,   333,   337,   341,   345,
+     349,   353,   359,   363,   367,   373,   377,   381,   387,   391,
+     395,   399,   405,   409,   415,   421
 };
 #endif
 
@@ -1245,525 +1248,539 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* Program: Procedures  */
-#line 86 "CminusParser.y"
+#line 89 "CminusParser.y"
                                         {
-						
+						DLinkNode * current1 = dlinkHead(declarations);
+						while (current1) {
+							printf("%s\n", (char *) dlinkNodeAtom(current1));
+							current1 = dlinkNext(current1);
+						} 
+
+						DLinkNode * current2 = dlinkHead(instructions);
+						while (current2) {
+							printf("%s\n", (char *) dlinkNodeAtom(current2));
+							current2 = dlinkNext(current2);
+						} 
 					}
-#line 1253 "CminusParser.c"
+#line 1266 "CminusParser.c"
     break;
 
   case 3: /* Program: DeclList Procedures  */
-#line 90 "CminusParser.y"
+#line 103 "CminusParser.y"
                                         {
-						
+						DLinkNode * current1 = dlinkHead(declarations);
+						while (current1) {
+							printf("%s\n", (char *) dlinkNodeAtom(current1));
+							current1 = dlinkNext(current1);
+						} 
+
+						DLinkNode * current2 = dlinkHead(instructions);
+						while (current2) {
+							printf("%s\n", (char *) dlinkNodeAtom(current2));
+							current2 = dlinkNext(current2);
+						}
 					}
-#line 1261 "CminusParser.c"
+#line 1284 "CminusParser.c"
     break;
 
   case 4: /* Procedures: ProcedureDecl Procedures  */
-#line 96 "CminusParser.y"
+#line 119 "CminusParser.y"
                                         {
 						
 					}
-#line 1269 "CminusParser.c"
+#line 1292 "CminusParser.c"
     break;
 
   case 5: /* Procedures: %empty  */
-#line 100 "CminusParser.y"
+#line 123 "CminusParser.y"
                                         {
 						
 					}
-#line 1277 "CminusParser.c"
+#line 1300 "CminusParser.c"
     break;
 
   case 6: /* ProcedureDecl: ProcedureHead ProcedureBody  */
-#line 106 "CminusParser.y"
+#line 129 "CminusParser.y"
                                         {
-						//genEnd();
+						genEnd(instructions);
 					}
-#line 1285 "CminusParser.c"
+#line 1308 "CminusParser.c"
     break;
 
   case 7: /* ProcedureHead: FunctionDecl DeclList  */
-#line 112 "CminusParser.y"
+#line 135 "CminusParser.y"
                                         {
-						//genMain();
+						genMain(instructions);
 					}
-#line 1293 "CminusParser.c"
+#line 1316 "CminusParser.c"
     break;
 
   case 8: /* ProcedureHead: FunctionDecl  */
-#line 116 "CminusParser.y"
+#line 139 "CminusParser.y"
                                         {
-						//genMain();
+						genMain(instructions);
 					}
-#line 1301 "CminusParser.c"
+#line 1324 "CminusParser.c"
     break;
 
   case 9: /* FunctionDecl: Type IDENTIFIER LPAREN RPAREN LBRACE  */
-#line 122 "CminusParser.y"
+#line 145 "CminusParser.y"
                                         {
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $2, SYM_NAME_FIELD), $2);
+						mainSet = 1;
 					}
-#line 1309 "CminusParser.c"
+#line 1332 "CminusParser.c"
     break;
 
   case 10: /* ProcedureBody: StatementList RBRACE  */
-#line 128 "CminusParser.y"
+#line 151 "CminusParser.y"
                                         {
 						
 					}
-#line 1317 "CminusParser.c"
+#line 1340 "CminusParser.c"
     break;
 
   case 11: /* DeclList: Type IdentifierList SEMICOLON  */
-#line 134 "CminusParser.y"
+#line 157 "CminusParser.y"
                                         {
-						//genSpace(( 4 * ($2 + 1) ));
+						genSpace(instructions, yyvsp[-1] + 4);
 					}
-#line 1325 "CminusParser.c"
+#line 1348 "CminusParser.c"
     break;
 
   case 12: /* DeclList: DeclList Type IdentifierList SEMICOLON  */
-#line 138 "CminusParser.y"
+#line 161 "CminusParser.y"
                                         {
 						
 					}
-#line 1333 "CminusParser.c"
+#line 1356 "CminusParser.c"
     break;
 
   case 13: /* IdentifierList: VarDecl  */
-#line 144 "CminusParser.y"
+#line 167 "CminusParser.y"
                                         {
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD), $1);
-						yyval = yyvsp[0];
+						yyval = setOffset(yyvsp[0], 4 * (yyvsp[0] - mainSet));
 					}
-#line 1342 "CminusParser.c"
+#line 1364 "CminusParser.c"
     break;
 
   case 14: /* IdentifierList: IdentifierList COMMA VarDecl  */
-#line 150 "CminusParser.y"
+#line 172 "CminusParser.y"
                                         {
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD), $3);
-						yyval = yyvsp[0];
+						yyval = setOffset(yyvsp[0], 4 * (yyvsp[0] - mainSet));
 					}
-#line 1351 "CminusParser.c"
+#line 1372 "CminusParser.c"
     break;
 
   case 15: /* VarDecl: IDENTIFIER  */
-#line 157 "CminusParser.y"
+#line 178 "CminusParser.y"
                                         { 
 						yyval = yyvsp[0];
 					}
-#line 1359 "CminusParser.c"
+#line 1380 "CminusParser.c"
     break;
 
   case 16: /* VarDecl: IDENTIFIER LBRACKET INTCON RBRACKET  */
-#line 161 "CminusParser.y"
+#line 182 "CminusParser.y"
                                         {
 					
 					}
-#line 1367 "CminusParser.c"
+#line 1388 "CminusParser.c"
     break;
 
   case 17: /* Type: INTEGER  */
-#line 167 "CminusParser.y"
+#line 188 "CminusParser.y"
                                         { 
 						
 					}
-#line 1375 "CminusParser.c"
+#line 1396 "CminusParser.c"
     break;
 
   case 18: /* Statement: Assignment  */
-#line 173 "CminusParser.y"
+#line 194 "CminusParser.y"
                                         { 
 						
 					}
-#line 1383 "CminusParser.c"
+#line 1404 "CminusParser.c"
     break;
 
   case 19: /* Statement: IfStatement  */
-#line 177 "CminusParser.y"
+#line 198 "CminusParser.y"
                                         { 
 						
 					}
-#line 1391 "CminusParser.c"
+#line 1412 "CminusParser.c"
     break;
 
   case 20: /* Statement: WhileStatement  */
-#line 181 "CminusParser.y"
+#line 202 "CminusParser.y"
                                         { 
 						
 					}
-#line 1399 "CminusParser.c"
+#line 1420 "CminusParser.c"
     break;
 
   case 21: /* Statement: IOStatement  */
-#line 185 "CminusParser.y"
+#line 206 "CminusParser.y"
                                         { 
 						
 					}
-#line 1407 "CminusParser.c"
+#line 1428 "CminusParser.c"
     break;
 
   case 22: /* Statement: ReturnStatement  */
-#line 189 "CminusParser.y"
+#line 210 "CminusParser.y"
                                         { 
 						
 					}
-#line 1415 "CminusParser.c"
+#line 1436 "CminusParser.c"
     break;
 
   case 23: /* Statement: ExitStatement  */
-#line 193 "CminusParser.y"
+#line 214 "CminusParser.y"
                                         { 
 						
 					}
-#line 1423 "CminusParser.c"
+#line 1444 "CminusParser.c"
     break;
 
   case 24: /* Statement: CompoundStatement  */
-#line 197 "CminusParser.y"
+#line 218 "CminusParser.y"
                                         { 
 						
 					}
-#line 1431 "CminusParser.c"
+#line 1452 "CminusParser.c"
     break;
 
   case 25: /* Assignment: Variable ASSIGN Expr SEMICOLON  */
-#line 203 "CminusParser.y"
+#line 224 "CminusParser.y"
                                         {
-						setValue(yyvsp[-3], yyvsp[-1]);
+						genAssign(instructions, regSymTab, yyvsp[-3], yyvsp[-1], getOffset(yyvsp[-3]));
 					}
-#line 1439 "CminusParser.c"
+#line 1460 "CminusParser.c"
     break;
 
   case 26: /* IfStatement: IF TestAndThen ELSE CompoundStatement  */
-#line 209 "CminusParser.y"
+#line 230 "CminusParser.y"
                                         {
 						
 					}
-#line 1447 "CminusParser.c"
+#line 1468 "CminusParser.c"
     break;
 
   case 27: /* IfStatement: IF TestAndThen  */
-#line 213 "CminusParser.y"
+#line 234 "CminusParser.y"
                                         {
 						
 					}
-#line 1455 "CminusParser.c"
+#line 1476 "CminusParser.c"
     break;
 
   case 28: /* TestAndThen: Test CompoundStatement  */
-#line 219 "CminusParser.y"
+#line 240 "CminusParser.y"
                                         {
 						
 					}
-#line 1463 "CminusParser.c"
+#line 1484 "CminusParser.c"
     break;
 
   case 29: /* Test: LPAREN Expr RPAREN  */
-#line 225 "CminusParser.y"
+#line 246 "CminusParser.y"
                                         {
 						
 					}
-#line 1471 "CminusParser.c"
+#line 1492 "CminusParser.c"
     break;
 
   case 30: /* WhileStatement: WhileToken WhileExpr Statement  */
-#line 231 "CminusParser.y"
+#line 252 "CminusParser.y"
                                         {
 						
 					}
-#line 1479 "CminusParser.c"
+#line 1500 "CminusParser.c"
     break;
 
   case 31: /* WhileExpr: LPAREN Expr RPAREN  */
-#line 237 "CminusParser.y"
+#line 258 "CminusParser.y"
                                         {
 						
 					}
-#line 1487 "CminusParser.c"
+#line 1508 "CminusParser.c"
     break;
 
   case 32: /* WhileToken: WHILE  */
-#line 243 "CminusParser.y"
+#line 264 "CminusParser.y"
                                         {
 						
 					}
-#line 1495 "CminusParser.c"
+#line 1516 "CminusParser.c"
     break;
 
   case 33: /* IOStatement: READ LPAREN Variable RPAREN SEMICOLON  */
-#line 249 "CminusParser.y"
+#line 270 "CminusParser.y"
                                         {
-						int t;
-						scanf("%d", &t);
-						setValue(yyvsp[-2], t); 
+						genRead(instructions, regSymTab, yyvsp[-2], getOffset(yyvsp[-2]));
 					}
-#line 1505 "CminusParser.c"
+#line 1524 "CminusParser.c"
     break;
 
   case 34: /* IOStatement: WRITE LPAREN Expr RPAREN SEMICOLON  */
-#line 255 "CminusParser.y"
+#line 274 "CminusParser.y"
                                         {
-						//printf("%d\n", $3);
+						genWriteNum(instructions, yyvsp[-2]);
 					}
-#line 1513 "CminusParser.c"
+#line 1532 "CminusParser.c"
     break;
 
   case 35: /* IOStatement: WRITE LPAREN StringConstant RPAREN SEMICOLON  */
-#line 259 "CminusParser.y"
+#line 278 "CminusParser.y"
                                         {
-						printf("Value at index %d and field name %s is: %s\n", yyvsp[-2], SYM_VARNAME_FIELD, SymGetFieldByIndex(symtab, yyvsp[-2], SYM_VARNAME_FIELD));
-						//genWriteStr($3);
-						genNewLine();
+						genWriteStr(instructions, yyvsp[-2]);
 					}
-#line 1523 "CminusParser.c"
+#line 1540 "CminusParser.c"
     break;
 
   case 36: /* ReturnStatement: RETURN Expr SEMICOLON  */
-#line 267 "CminusParser.y"
+#line 284 "CminusParser.y"
                                         {
 						
 					}
-#line 1531 "CminusParser.c"
+#line 1548 "CminusParser.c"
     break;
 
   case 37: /* ExitStatement: EXIT SEMICOLON  */
-#line 273 "CminusParser.y"
+#line 290 "CminusParser.y"
                                         {
 						
 					}
-#line 1539 "CminusParser.c"
+#line 1556 "CminusParser.c"
     break;
 
   case 38: /* CompoundStatement: LBRACE StatementList RBRACE  */
-#line 279 "CminusParser.y"
+#line 296 "CminusParser.y"
                                         {
 						
 					}
-#line 1547 "CminusParser.c"
+#line 1564 "CminusParser.c"
     break;
 
   case 39: /* StatementList: Statement  */
-#line 285 "CminusParser.y"
+#line 302 "CminusParser.y"
                                         {		
 
 					}
-#line 1555 "CminusParser.c"
+#line 1572 "CminusParser.c"
     break;
 
   case 40: /* StatementList: StatementList Statement  */
-#line 289 "CminusParser.y"
+#line 306 "CminusParser.y"
                                         {		
 
 					}
-#line 1563 "CminusParser.c"
+#line 1580 "CminusParser.c"
     break;
 
   case 41: /* Expr: SimpleExpr  */
-#line 295 "CminusParser.y"
+#line 312 "CminusParser.y"
                                         {
 						yyval = yyvsp[0];
 					}
-#line 1571 "CminusParser.c"
+#line 1588 "CminusParser.c"
     break;
 
   case 42: /* Expr: Expr OR SimpleExpr  */
-#line 299 "CminusParser.y"
+#line 316 "CminusParser.y"
                                         {
 						yyval = yyvsp[-2] | yyvsp[0];
 					}
-#line 1579 "CminusParser.c"
+#line 1596 "CminusParser.c"
     break;
 
   case 43: /* Expr: Expr AND SimpleExpr  */
-#line 303 "CminusParser.y"
+#line 320 "CminusParser.y"
                                         {
 						yyval = yyvsp[-2] & yyvsp[0];
 					}
-#line 1587 "CminusParser.c"
+#line 1604 "CminusParser.c"
     break;
 
   case 44: /* Expr: NOT SimpleExpr  */
-#line 307 "CminusParser.y"
+#line 324 "CminusParser.y"
                                         {
 						yyval = yyvsp[0] ^ 1;
 					}
-#line 1595 "CminusParser.c"
+#line 1612 "CminusParser.c"
     break;
 
   case 45: /* SimpleExpr: AddExpr  */
-#line 313 "CminusParser.y"
+#line 330 "CminusParser.y"
                                         {
 						yyval = yyvsp[0];
 					}
-#line 1603 "CminusParser.c"
+#line 1620 "CminusParser.c"
     break;
 
   case 46: /* SimpleExpr: SimpleExpr EQ AddExpr  */
-#line 317 "CminusParser.y"
+#line 334 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] == yyvsp[0]);
 					}
-#line 1611 "CminusParser.c"
+#line 1628 "CminusParser.c"
     break;
 
   case 47: /* SimpleExpr: SimpleExpr NE AddExpr  */
-#line 321 "CminusParser.y"
+#line 338 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] != yyvsp[0]);
 					}
-#line 1619 "CminusParser.c"
+#line 1636 "CminusParser.c"
     break;
 
   case 48: /* SimpleExpr: SimpleExpr LE AddExpr  */
-#line 325 "CminusParser.y"
+#line 342 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] <= yyvsp[0]);
 					}
-#line 1627 "CminusParser.c"
+#line 1644 "CminusParser.c"
     break;
 
   case 49: /* SimpleExpr: SimpleExpr LT AddExpr  */
-#line 329 "CminusParser.y"
+#line 346 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] < yyvsp[0]);
 					}
-#line 1635 "CminusParser.c"
+#line 1652 "CminusParser.c"
     break;
 
   case 50: /* SimpleExpr: SimpleExpr GE AddExpr  */
-#line 333 "CminusParser.y"
+#line 350 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] >= yyvsp[0]);
 					}
-#line 1643 "CminusParser.c"
+#line 1660 "CminusParser.c"
     break;
 
   case 51: /* SimpleExpr: SimpleExpr GT AddExpr  */
-#line 337 "CminusParser.y"
+#line 354 "CminusParser.y"
                                         {
 						yyval = (yyvsp[-2] > yyvsp[0]);
 					}
-#line 1651 "CminusParser.c"
+#line 1668 "CminusParser.c"
     break;
 
   case 52: /* AddExpr: MulExpr  */
-#line 343 "CminusParser.y"
+#line 360 "CminusParser.y"
                                         {
 						yyval = yyvsp[0];
 					}
-#line 1659 "CminusParser.c"
+#line 1676 "CminusParser.c"
     break;
 
   case 53: /* AddExpr: AddExpr PLUS MulExpr  */
-#line 347 "CminusParser.y"
+#line 364 "CminusParser.y"
                                         {
-						yyval = genArith(regSymTab, yyvsp[-2], yyvsp[0], "add");
+						yyval = genArith(instructions, regSymTab, yyvsp[-2], yyvsp[0], "add");
 					}
-#line 1667 "CminusParser.c"
+#line 1684 "CminusParser.c"
     break;
 
   case 54: /* AddExpr: AddExpr MINUS MulExpr  */
-#line 351 "CminusParser.y"
+#line 368 "CminusParser.y"
                                         {
-						yyval = genArith(regSymTab, yyvsp[-2], yyvsp[0], "sub");
+						yyval = genArith(instructions, regSymTab, yyvsp[-2], yyvsp[0], "sub");
 					}
-#line 1675 "CminusParser.c"
+#line 1692 "CminusParser.c"
     break;
 
   case 55: /* MulExpr: Factor  */
-#line 357 "CminusParser.y"
+#line 374 "CminusParser.y"
                                         {
 						yyval = yyvsp[0];
 					}
-#line 1683 "CminusParser.c"
+#line 1700 "CminusParser.c"
     break;
 
   case 56: /* MulExpr: MulExpr TIMES Factor  */
-#line 361 "CminusParser.y"
+#line 378 "CminusParser.y"
                                         {
-						yyval = genArith(regSymTab, yyvsp[-2], yyvsp[0], "mul");
+						yyval = genArith(instructions, regSymTab, yyvsp[-2], yyvsp[0], "mul");
 					}
-#line 1691 "CminusParser.c"
+#line 1708 "CminusParser.c"
     break;
 
   case 57: /* MulExpr: MulExpr DIVIDE Factor  */
-#line 365 "CminusParser.y"
+#line 382 "CminusParser.y"
                                         {
-						yyval = genArith(regSymTab, yyvsp[-2], yyvsp[0], "div");
+						yyval = genArith(instructions, regSymTab, yyvsp[-2], yyvsp[0], "div");
 					}
-#line 1699 "CminusParser.c"
+#line 1716 "CminusParser.c"
     break;
 
   case 58: /* Factor: Variable  */
-#line 371 "CminusParser.y"
+#line 388 "CminusParser.y"
                                         { 
-						yyval = getValue(yyvsp[0]);
+						yyval = genVal(instructions, regSymTab, yyvsp[0], getOffset(yyvsp[0]));
 					}
-#line 1707 "CminusParser.c"
+#line 1724 "CminusParser.c"
     break;
 
   case 59: /* Factor: Constant  */
-#line 375 "CminusParser.y"
+#line 392 "CminusParser.y"
                                         { 
 						yyval = yyvsp[0];
 					}
-#line 1715 "CminusParser.c"
+#line 1732 "CminusParser.c"
     break;
 
   case 60: /* Factor: IDENTIFIER LPAREN RPAREN  */
-#line 379 "CminusParser.y"
+#line 396 "CminusParser.y"
                                         {
 
 					}
-#line 1723 "CminusParser.c"
+#line 1740 "CminusParser.c"
     break;
 
   case 61: /* Factor: LPAREN Expr RPAREN  */
-#line 383 "CminusParser.y"
+#line 400 "CminusParser.y"
                                         {
 						yyval = yyvsp[-1];
 					}
-#line 1731 "CminusParser.c"
+#line 1748 "CminusParser.c"
     break;
 
   case 62: /* Variable: IDENTIFIER  */
-#line 389 "CminusParser.y"
+#line 406 "CminusParser.y"
                                         {
 						yyval = yyvsp[0];
 					}
-#line 1739 "CminusParser.c"
+#line 1756 "CminusParser.c"
     break;
 
   case 63: /* Variable: IDENTIFIER LBRACKET Expr RBRACKET  */
-#line 393 "CminusParser.y"
+#line 410 "CminusParser.y"
                                         {
 
 					}
-#line 1747 "CminusParser.c"
+#line 1764 "CminusParser.c"
     break;
 
   case 64: /* StringConstant: STRING  */
-#line 399 "CminusParser.y"
+#line 416 "CminusParser.y"
                                         { 
-						yyval = genString(symtab, yyvsp[0]);
+						yyval = genString(declarations, symtab, yyvsp[0]);
 					}
-#line 1755 "CminusParser.c"
+#line 1772 "CminusParser.c"
     break;
 
   case 65: /* Constant: INTCON  */
-#line 405 "CminusParser.y"
+#line 422 "CminusParser.y"
                                         { 
-						yyval = genInt(regSymTab, yyvsp[0]);
+						yyval = genInt(instructions, regSymTab, yyvsp[0]);
 					}
-#line 1763 "CminusParser.c"
+#line 1780 "CminusParser.c"
     break;
 
 
-#line 1767 "CminusParser.c"
+#line 1784 "CminusParser.c"
 
       default: break;
     }
@@ -1956,7 +1973,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 409 "CminusParser.y"
+#line 426 "CminusParser.y"
 
 /********************C ROUTINES *********************************/
 
@@ -1991,15 +2008,24 @@ static void initialize(char* inputFileName) {
 	symtab = SymInit(SYMTABLE_SIZE);
 	regSymTab = SymInit(SYMTABLE_SIZE);
 	SymInitField(symtab, SYM_VALUE_FIELD, (Generic) -1, NULL);
-	SymInitField(symtab, SYM_VARNAME_FIELD, (Generic) -1, NULL);
-
+	SymInitField(symtab, SYM_OFFSET_FIELD, (Generic) -1, NULL);
+	instructions = dlinkListAlloc((Generic) "insts");
+	declarations = dlinkListAlloc((Generic) "decls");
+	char *inst = nssave(2,  ".data\n",
+                            ".newLine: .asciiz \"\\n\""
+                        );
+	dlinkAppend(declarations, dlinkNodeAlloc((Generic) inst));
 	initRegisters();
 }
 
 static void finalize() {
     cleanupRegisters();
+	dlinkFreeNodesAndAtoms(instructions);
+	dlinkFreeNodesAndAtoms(declarations);
+	dlinkListFree(instructions);
+	dlinkListFree(declarations);
+	SymKillField(symtab, SYM_OFFSET_FIELD);
 	SymKillField(symtab, SYM_VALUE_FIELD);
-	SymKillField(symtab, SYM_VARNAME_FIELD);
     SymKill(symtab);
 	SymKill(regSymTab);
     fclose(Cminus_in);
@@ -2021,5 +2047,14 @@ int getValue(int index) {
 
 int setValue(int index, int value) {
 	SymPutFieldByIndex(symtab, index, SYM_VALUE_FIELD, (Generic) value); 
+}
+
+int getOffset(int index) {
+	return (int) SymGetFieldByIndex(symtab, index, SYM_OFFSET_FIELD); 
+}
+
+int setOffset(int index, int value) {
+	SymPutFieldByIndex(symtab, index, SYM_OFFSET_FIELD, (Generic) value); 
+	return getOffset(index);
 }
 /******************END OF C ROUTINES**********************/

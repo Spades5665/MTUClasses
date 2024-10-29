@@ -12,7 +12,7 @@
 #include <util/general.h>
 #include "../util/symtab.h"
 #include <util/symtab_stack.h>
-#include <util/dlink.h>
+#include "../util/dlink.h"
 #include <util/string_utils.h>
 
 #define SYMTABLE_SIZE 100
@@ -27,6 +27,9 @@ char *fileName;
 
 SymTable symtab;
 SymTable regSymTab;
+DLinkList * declarations;
+DLinkList * instructions;
+int mainSet = 0;
 
 extern int Cminus_lineno;
 
@@ -84,11 +87,31 @@ extern FILE *Cminus_in;
 %%
 Program			: Procedures 
 					{
-						
+						DLinkNode * current1 = dlinkHead(declarations);
+						while (current1) {
+							printf("%s\n", (char *) dlinkNodeAtom(current1));
+							current1 = dlinkNext(current1);
+						} 
+
+						DLinkNode * current2 = dlinkHead(instructions);
+						while (current2) {
+							printf("%s\n", (char *) dlinkNodeAtom(current2));
+							current2 = dlinkNext(current2);
+						} 
 					}
 				| DeclList Procedures
 					{
-						
+						DLinkNode * current1 = dlinkHead(declarations);
+						while (current1) {
+							printf("%s\n", (char *) dlinkNodeAtom(current1));
+							current1 = dlinkNext(current1);
+						} 
+
+						DLinkNode * current2 = dlinkHead(instructions);
+						while (current2) {
+							printf("%s\n", (char *) dlinkNodeAtom(current2));
+							current2 = dlinkNext(current2);
+						}
 					}
 				;
 
@@ -104,23 +127,23 @@ Procedures 		: ProcedureDecl Procedures
 
 ProcedureDecl 	: ProcedureHead ProcedureBody
 					{
-						//genEnd();
+						genEnd(instructions);
 					}
 				;
 
 ProcedureHead 	: FunctionDecl DeclList 
 					{
-						//genMain();
+						genMain(instructions);
 					}
 	      		| FunctionDecl
 					{
-						//genMain();
+						genMain(instructions);
 					}
               	;	
 
 FunctionDecl 	:  Type IDENTIFIER LPAREN RPAREN LBRACE 
 					{
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $2, SYM_NAME_FIELD), $2);
+						mainSet = 1;
 					}
 				;
 
@@ -132,7 +155,7 @@ ProcedureBody 	: StatementList RBRACE
 
 DeclList 		: Type IdentifierList SEMICOLON 
 					{
-						//genSpace(( 4 * ($2 + 1) ));
+						genSpace(instructions, $2 + 4);
 					}		
 				| DeclList Type IdentifierList SEMICOLON
 					{
@@ -142,14 +165,12 @@ DeclList 		: Type IdentifierList SEMICOLON
 
 IdentifierList 	: VarDecl  
 					{
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $1, SYM_NAME_FIELD), $1);
-						$$ = $1;
+						$$ = setOffset($1, 4 * ($1 - mainSet));
 					}
 									
 				| IdentifierList COMMA VarDecl
 					{
-						//printf("Index for %s = %d\n", (char *) SymGetFieldByIndex(symtab, $3, SYM_NAME_FIELD), $3);
-						$$ = $3;
+						$$ = setOffset($3, 4 * ($3 - mainSet));
 					}
                 ;
 
@@ -201,7 +222,7 @@ Statement 		: Assignment
 
 Assignment      : Variable ASSIGN Expr SEMICOLON
 					{
-						setValue($1, $3);
+						genAssign(instructions, regSymTab, $1, $3, getOffset($1));
 					}
                 ;
 				
@@ -247,19 +268,15 @@ WhileToken		: WHILE
 
 IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					{
-						int t;
-						scanf("%d", &t);
-						setValue($3, t); 
+						genRead(instructions, regSymTab, $3, getOffset($3));
 					}
 				| WRITE LPAREN Expr RPAREN SEMICOLON
 					{
-						//printf("%d\n", $3);
+						genWriteNum(instructions, $3);
 					}
 				| WRITE LPAREN StringConstant RPAREN SEMICOLON         
 					{
-						printf("Value at index %d and field name %s is: %s\n", $3, SYM_VARNAME_FIELD, SymGetFieldByIndex(symtab, $3, SYM_VARNAME_FIELD));
-						//genWriteStr($3);
-						genNewLine();
+						genWriteStr(instructions, $3);
 					}
                 ;
 
@@ -345,11 +362,11 @@ AddExpr			:  MulExpr
 					}
 				|  AddExpr PLUS MulExpr
 					{
-						$$ = genArith(regSymTab, $1, $3, "add");
+						$$ = genArith(instructions, regSymTab, $1, $3, "add");
 					}
 				|  AddExpr MINUS MulExpr
 					{
-						$$ = genArith(regSymTab, $1, $3, "sub");
+						$$ = genArith(instructions, regSymTab, $1, $3, "sub");
 					}
                 ;
 
@@ -359,17 +376,17 @@ MulExpr			:  Factor
 					}
 				|  MulExpr TIMES Factor
 					{
-						$$ = genArith(regSymTab, $1, $3, "mul");
+						$$ = genArith(instructions, regSymTab, $1, $3, "mul");
 					}
 				|  MulExpr DIVIDE Factor
 					{
-						$$ = genArith(regSymTab, $1, $3, "div");
+						$$ = genArith(instructions, regSymTab, $1, $3, "div");
 					}		
                 ;
 				
 Factor          : Variable
 					{ 
-						$$ = getValue($1);
+						$$ = genVal(instructions, regSymTab, $1, getOffset($1));
 					}
 				| Constant
 					{ 
@@ -397,13 +414,13 @@ Variable        : IDENTIFIER
 
 StringConstant 	: STRING
 					{ 
-						$$ = genString(symtab, $1);
+						$$ = genString(declarations, symtab, $1);
 					} 
                 ;
 
 Constant        : INTCON
 					{ 
-						$$ = genInt(regSymTab, $1);
+						$$ = genInt(instructions, regSymTab, $1);
 					}
                 ;
 %%
@@ -440,15 +457,24 @@ static void initialize(char* inputFileName) {
 	symtab = SymInit(SYMTABLE_SIZE);
 	regSymTab = SymInit(SYMTABLE_SIZE);
 	SymInitField(symtab, SYM_VALUE_FIELD, (Generic) -1, NULL);
-	SymInitField(symtab, SYM_VARNAME_FIELD, (Generic) -1, NULL);
-
+	SymInitField(symtab, SYM_OFFSET_FIELD, (Generic) -1, NULL);
+	instructions = dlinkListAlloc((Generic) "insts");
+	declarations = dlinkListAlloc((Generic) "decls");
+	char *inst = nssave(2,  ".data\n",
+                            ".newLine: .asciiz \"\\n\""
+                        );
+	dlinkAppend(declarations, dlinkNodeAlloc((Generic) inst));
 	initRegisters();
 }
 
 static void finalize() {
     cleanupRegisters();
+	dlinkFreeNodesAndAtoms(instructions);
+	dlinkFreeNodesAndAtoms(declarations);
+	dlinkListFree(instructions);
+	dlinkListFree(declarations);
+	SymKillField(symtab, SYM_OFFSET_FIELD);
 	SymKillField(symtab, SYM_VALUE_FIELD);
-	SymKillField(symtab, SYM_VARNAME_FIELD);
     SymKill(symtab);
 	SymKill(regSymTab);
     fclose(Cminus_in);
@@ -470,5 +496,14 @@ int getValue(int index) {
 
 int setValue(int index, int value) {
 	SymPutFieldByIndex(symtab, index, SYM_VALUE_FIELD, (Generic) value); 
+}
+
+int getOffset(int index) {
+	return (int) SymGetFieldByIndex(symtab, index, SYM_OFFSET_FIELD); 
+}
+
+int setOffset(int index, int value) {
+	SymPutFieldByIndex(symtab, index, SYM_OFFSET_FIELD, (Generic) value); 
+	return getOffset(index);
 }
 /******************END OF C ROUTINES**********************/

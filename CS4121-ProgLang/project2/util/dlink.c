@@ -13,7 +13,7 @@
 /******************************************************************************/
 
 #include <stdlib.h>
-#include <util/dlink.h>
+#include "dlink.h"
 
 #ifndef COREDUMP
 #define COREDUMP()      abort()

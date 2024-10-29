@@ -152,9 +152,6 @@ SymTable SymInit(unsigned int size)
 
   SymInitField(ip,SYM_NAME_FIELD, 0, sfree_if_nonzero);
   ip->NameField = SymFieldIndex(ip, SYM_NAME_FIELD);
-  
-  SymInitField(ip,SYM_VARNAME_FIELD, 0, sfree_if_nonzero);
-  ip->VarNameField = SymFieldIndex(ip, SYM_VARNAME_FIELD);
 
 #ifdef DEBUG
   fprintf(stderr, "SymInit(%d): sparse index size set to %d.\n", size, power);

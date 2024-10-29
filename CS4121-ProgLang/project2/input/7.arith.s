@@ -1,0 +1,59 @@
+.data
+.newLine: .asciiz "\n"
+.text
+.globl main
+main:	nop
+sw $gp, ($sp)
+move $gp, $sp
+add $sp, $sp, 20
+li $s0, 1
+add $s1, $gp, 0
+sw $s0, 0($s1)
+li $s0, 2
+add $s1, $gp, 4
+sw $s0, 0($s1)
+li $s0, 3
+add $s1, $gp, 8
+sw $s0, 0($s1)
+li $s0, 4
+add $s1, $gp, 12
+sw $s0, 0($s1)
+add $s1, $gp, 0
+lw $s0, 0($s1)
+add $s2, $gp, 4
+lw $s1, 0($s2)
+add $s2, $s0, $s1
+add $s1, $gp, 8
+lw $s0, 0($s1)
+add $s3, $gp, 12
+lw $s1, 0($s3)
+mul $s3, $s0, $s1
+add $s0, $s2, $s3
+move $a0, $s0
+li $v0, 1
+syscall
+la $a0, .newLine
+li $v0, 4
+syscall
+add $s1, $gp, 0
+lw $s0, 0($s1)
+add $s2, $gp, 12
+lw $s1, 0($s2)
+add $s3, $gp, 0
+lw $s2, 0($s3)
+sub $s3, $s1, $s2
+add $s2, $gp, 8
+lw $s1, 0($s2)
+div $s2, $s3, $s1
+add $s1, $s0, $s2
+add $s2, $gp, 4
+lw $s0, 0($s2)
+add $s2, $s1, $s0
+move $a0, $s2
+li $v0, 1
+syscall
+la $a0, .newLine
+li $v0, 4
+syscall
+li $v0, 10
+syscall
