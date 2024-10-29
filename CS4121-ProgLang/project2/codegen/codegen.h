@@ -1,7 +1,7 @@
 #ifndef CODEGEN_H_
 #define CODEGEN_H_
 
-#include <util/symtab.h>
+#include "../util/symtab.h"
 #include <codegen/types.h>
 
 #define SYSCALL_PRINT_INTEGER "1"	/**< The syscall code for printing an integer */

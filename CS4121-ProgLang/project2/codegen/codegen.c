@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <util/string_utils.h>
-#include <util/symtab.h>
+#include "../util/symtab.h"
 #include <util/dlink.h>
 #include "reg.h"
 #include "codegen.h"
@@ -72,7 +72,7 @@ int genArith(SymTable regSymTab, int leftInd, int rightInd, char * type) {
 }
 
 void genWriteStr(SymTable symtab, int index) {
-    char *inst = nssave(5,  "la $a0, ", (char *) SymGetFieldByIndex(symtab, index, "VariableName"), "\n",
+    char *inst = nssave(5,  "la $a0, ", (char *) SymGetFieldByIndex(symtab, index, "SYMNAME"), "\n",
                             "li $v0, 4\n",
                             "syscall"
                         );

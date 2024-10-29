@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -30,6 +31,10 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
+
 #ifndef YY_CMINUS_CMINUSPARSER_H_INCLUDED
 # define YY_CMINUS_CMINUSPARSER_H_INCLUDED
 /* Debug traces.  */
@@ -40,47 +45,52 @@
 extern int Cminus_debug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    AND = 258,
-    ELSE = 259,
-    EXIT = 260,
-    FOR = 261,
-    IF = 262,
-    INTEGER = 263,
-    NOT = 264,
-    OR = 265,
-    READ = 266,
-    WHILE = 267,
-    WRITE = 268,
-    LBRACE = 269,
-    RBRACE = 270,
-    LE = 271,
-    LT = 272,
-    GE = 273,
-    GT = 274,
-    EQ = 275,
-    NE = 276,
-    ASSIGN = 277,
-    COMMA = 278,
-    SEMICOLON = 279,
-    LBRACKET = 280,
-    RBRACKET = 281,
-    LPAREN = 282,
-    RPAREN = 283,
-    PLUS = 284,
-    TIMES = 285,
-    IDENTIFIER = 286,
-    DIVIDE = 287,
-    RETURN = 288,
-    STRING = 289,
-    INTCON = 290,
-    MINUS = 291,
-    DIVDE = 292
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    AND = 258,                     /* AND  */
+    ELSE = 259,                    /* ELSE  */
+    EXIT = 260,                    /* EXIT  */
+    FOR = 261,                     /* FOR  */
+    IF = 262,                      /* IF  */
+    INTEGER = 263,                 /* INTEGER  */
+    NOT = 264,                     /* NOT  */
+    OR = 265,                      /* OR  */
+    READ = 266,                    /* READ  */
+    WHILE = 267,                   /* WHILE  */
+    WRITE = 268,                   /* WRITE  */
+    LBRACE = 269,                  /* LBRACE  */
+    RBRACE = 270,                  /* RBRACE  */
+    LE = 271,                      /* LE  */
+    LT = 272,                      /* LT  */
+    GE = 273,                      /* GE  */
+    GT = 274,                      /* GT  */
+    EQ = 275,                      /* EQ  */
+    NE = 276,                      /* NE  */
+    ASSIGN = 277,                  /* ASSIGN  */
+    COMMA = 278,                   /* COMMA  */
+    SEMICOLON = 279,               /* SEMICOLON  */
+    LBRACKET = 280,                /* LBRACKET  */
+    RBRACKET = 281,                /* RBRACKET  */
+    LPAREN = 282,                  /* LPAREN  */
+    RPAREN = 283,                  /* RPAREN  */
+    PLUS = 284,                    /* PLUS  */
+    TIMES = 285,                   /* TIMES  */
+    IDENTIFIER = 286,              /* IDENTIFIER  */
+    DIVIDE = 287,                  /* DIVIDE  */
+    RETURN = 288,                  /* RETURN  */
+    STRING = 289,                  /* STRING  */
+    INTCON = 290,                  /* INTCON  */
+    MINUS = 291,                   /* MINUS  */
+    DIVDE = 292                    /* DIVDE  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
@@ -93,6 +103,8 @@ typedef int YYSTYPE;
 
 extern YYSTYPE Cminus_lval;
 
+
 int Cminus_parse (void);
+
 
 #endif /* !YY_CMINUS_CMINUSPARSER_H_INCLUDED  */

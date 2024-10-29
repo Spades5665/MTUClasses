@@ -1,2 +1,1 @@
-libutil-g.a(symtab.o): symtab.c ../util/symtab.h ../util/general.h \
- ../util/string_utils.h
+libutil-g.a(symtab.o): symtab.c symtab.h ../util/general.h string_utils.h

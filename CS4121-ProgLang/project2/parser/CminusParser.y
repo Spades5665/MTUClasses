@@ -10,7 +10,7 @@
 #include <strings.h>
 #include <string.h>
 #include <util/general.h>
-#include <util/symtab.h>
+#include "../util/symtab.h"
 #include <util/symtab_stack.h>
 #include <util/dlink.h>
 #include <util/string_utils.h>
@@ -257,7 +257,8 @@ IOStatement     : READ LPAREN Variable RPAREN SEMICOLON
 					}
 				| WRITE LPAREN StringConstant RPAREN SEMICOLON         
 					{
-						genWriteStr($3);
+						printf("Value at index %d and field name %s is: %s\n", $3, SYM_VARNAME_FIELD, SymGetFieldByIndex(symtab, $3, SYM_VARNAME_FIELD));
+						//genWriteStr($3);
 						genNewLine();
 					}
                 ;
