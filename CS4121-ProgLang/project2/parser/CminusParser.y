@@ -25,11 +25,11 @@ EXTERN(int, Cminus_lex, (void));
 
 char *fileName;
 
-SymTable symtab;
-SymTable regSymTab;
-DLinkList * declarations;
-DLinkList * instructions;
-int mainSet = 0;
+SymTable symtab;              // Holds variables and their values
+SymTable regSymTab;           // Holds registers and if they are in use
+DLinkList * declarations;     // Contains the .data instructions
+DLinkList * instructions;     // Contains the .text instructions
+int mainSet = 0;              // Keeps offset consistent
 
 extern int Cminus_lineno;
 
@@ -85,6 +85,7 @@ extern FILE *Cminus_in;
 
 /***********************PRODUCTIONS****************************/
 %%
+// Program prints out the correct order of declarations and instructions
 Program			: Procedures 
 					{
 						DLinkNode * current1 = dlinkHead(declarations);
@@ -314,15 +315,15 @@ Expr            : SimpleExpr
 					}
 				| Expr OR SimpleExpr 
 					{
-						$$ = $1 | $3;
+						$$ = genArith(instructions, regSymTab, $1, $3, "or");
 					}
 				| Expr AND SimpleExpr 
 					{
-						$$ = $1 & $3;
+						$$ = genArith(instructions, regSymTab, $1, $3, "and");
 					}
 				| NOT SimpleExpr 
 					{
-						$$ = $2 ^ 1;
+						$$ = genNot(instructions, regSymTab, $2);
 					}
                 ;
 
@@ -332,27 +333,27 @@ SimpleExpr		: AddExpr
 					}
 				| SimpleExpr EQ AddExpr
 					{
-						$$ = ($1 == $3);
+						$$ = genEqual(instructions, regSymTab, $1, $3);
 					}
 				| SimpleExpr NE AddExpr
 					{
-						$$ = ($1 != $3);
+						$$ = genNotEqual(instructions, regSymTab, $1, $3);
 					}
 				| SimpleExpr LE AddExpr
 					{
-						$$ = ($1 <= $3);
+						$$ = genLE(instructions, regSymTab, $1, $3);
 					}
 				| SimpleExpr LT AddExpr
 					{
-						$$ = ($1 < $3);
+						$$ = genLT(instructions, regSymTab, $1, $3);
 					}
 				| SimpleExpr GE AddExpr
 					{
-						$$ = ($1 >= $3);
+						$$ = genGE(instructions, regSymTab, $1, $3);
 					}
 				| SimpleExpr GT AddExpr
 					{
-						$$ = ($1 > $3);
+						$$ = genGT(instructions, regSymTab, $1, $3);
 					}
                 ;
 
@@ -498,10 +499,12 @@ int setValue(int index, int value) {
 	SymPutFieldByIndex(symtab, index, SYM_VALUE_FIELD, (Generic) value); 
 }
 
+// Gets the offset of a variable using its index
 int getOffset(int index) {
 	return (int) SymGetFieldByIndex(symtab, index, SYM_OFFSET_FIELD); 
 }
 
+// Sets the offset of a variable using its index
 int setOffset(int index, int value) {
 	SymPutFieldByIndex(symtab, index, SYM_OFFSET_FIELD, (Generic) value); 
 	return getOffset(index);
