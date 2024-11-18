@@ -89,8 +89,7 @@ extern int Cminus_debug;
     STRING = 290,                  /* STRING  */
     INTCON = 291,                  /* INTCON  */
     FLOATCON = 292,                /* FLOATCON  */
-    MINUS = 293,                   /* MINUS  */
-    DIVDE = 294                    /* DIVDE  */
+    MINUS = 293                    /* MINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -99,14 +98,14 @@ extern int Cminus_debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 96 "CminusParser.y"
+#line 93 "CminusParser.y"
 
 	char*	name;
 	int     symIndex;
 	DList	idList;
 	int 	offset;
 
-#line 110 "CminusParser.h"
+#line 109 "CminusParser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

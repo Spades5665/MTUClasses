@@ -192,11 +192,12 @@ IdentifierList: VarDecl
 VarDecl 	: IDENTIFIER
 				{ 
 					$$ = SymIndex(symtab, $1);
+					SymPutFieldByIndex(symtab, $$, SYMTAB_OFFSET_FIELD, (Generic) 0);
 				}
 			| IDENTIFIER LBRACKET INTCON RBRACKET
 				{
 					$$ = SymIndex(symtab, $1);
-					SymPutFieldByIndex(symtab, $$, SYMTAB_OFFSET_FIELD, 4 * $3);
+					SymPutFieldByIndex(symtab, $$, SYMTAB_OFFSET_FIELD, (Generic) (atoi($3) - 1));
 				}
 			;
 
@@ -366,13 +367,11 @@ Variable    : IDENTIFIER
 				{
 					int symIndex = SymQueryIndex(symtab, $1);
 					$$ = emitComputeVariableAddress(instList, symtab, symIndex);
-					int offset = (int) SymGetFieldByIndex(symtab, symIndex, SYMTAB_OFFSET_FIELD);
 				}
             | IDENTIFIER LBRACKET Expr RBRACKET    
 				{
-					//printf("ID: %d, EXPR: %d\n", $1, $3);
-					
-					//$$ = SYM_INVALID_INDEX;
+					int symIndex = SymQueryIndex(symtab, $1);
+					$$ = emitComputeArrayAddress(instList, symtab, symIndex, $3);
 				}
             ;			       
 

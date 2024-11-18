@@ -114,7 +114,7 @@ void emitProcedurePrologue(DList instList,SymTable symtab, int index, int frameS
 	dlinkAppend(instList,dlinkNodeAlloc(inst));
 	
 
-	inst = ssave("\tmove\t$fp,$sp");
+	inst = ssave("\tmove $fp, $sp");
 	dlinkAppend(instList,dlinkNodeAlloc(inst));
 
 	if (frameSize != 0) {
@@ -563,9 +563,26 @@ int emitComputeVariableAddress(DList instList, SymTable symtab, int varIndex) {
 	
 	return regIndex;
 	
-
 }
 
+int emitComputeArrayAddress(DList instList, SymTable symtab, int varIndex, int arrayIndex) {
+	int baseIndex = emitComputeVariableAddress(instList, symtab, varIndex);
+	char* baseName = (char*) SymGetFieldByIndex(symtab, baseIndex, SYM_NAME_FIELD);
+	
+	char* exprName = (char*) SymGetFieldByIndex(symtab, arrayIndex, SYM_NAME_FIELD);
+
+	int resIndex = getFreeIntegerRegisterIndex(symtab);
+	char* resName = (char*) SymGetFieldByIndex(symtab, resIndex, SYM_NAME_FIELD);
+
+	char *inst;
+	inst = nssave(11, "\tmul ", exprName, ", ", exprName, ", 4\n",
+					 "\tadd ", resName, ", ", baseName, ", ", exprName
+				);
+	dlinkAppend(instList,dlinkNodeAlloc(inst));
+	
+	return resIndex;
+	
+}
 
 /**
  * Add an instruction to load the address of a string constant
@@ -604,12 +621,14 @@ int emitLoadStringConstantAddress(DList instList, DList dataList, SymTable symta
  */
 void addIdToSymtab(DNode node, AddIdStructPtr data) {
 
-	int symIndex = (int)dlinkNodeAtom(node);
+	int symIndex = (int) dlinkNodeAtom(node);
 	
 	int  size = 4;
+
+	int arraySize = (int) SymGetFieldByIndex(data->symtab, symIndex, SYMTAB_OFFSET_FIELD);
 	
 	data->offset += size*data->offsetDirection;
 	SymPutFieldByIndex(data->symtab,symIndex,SYMTAB_OFFSET_FIELD,(Generic)data->offset);
-	
+	data->offset += size*arraySize*data->offsetDirection;
 }
 
