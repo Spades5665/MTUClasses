@@ -632,3 +632,41 @@ void addIdToSymtab(DNode node, AddIdStructPtr data) {
 	data->offset += size*arraySize*data->offsetDirection;
 }
 
+int emitIfEvaluate(DList instList, SymTable symtab, int regIndex, int labelNum) {
+	char* regName = (char*) SymGetFieldByIndex(symtab, regIndex, SYM_NAME_FIELD);
+
+	char elseLabel[10];
+	sprintf(elseLabel, ".L%d", labelNum);
+
+	char* inst = nssave(4, "\tbeq ", regName, ", $zero, ", elseLabel);
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
+
+	return labelNum;
+}
+
+int emitIfElse(DList instList, SymTable symtab, int labelNum) {
+	char elseLabel[10];
+	sprintf(elseLabel, ".L%d", labelNum++);
+
+	char endLabel[10];
+	sprintf(endLabel, ".L%d", labelNum);
+
+	char* inst = nssave(5,  "\tj ", endLabel, "\n",
+							elseLabel, ":"
+					   );
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
+
+	return labelNum;
+}
+
+int emitIfEnd(DList instList, SymTable symtab, int labelNum) {
+	char endLabel[10];
+	sprintf(endLabel, ".L%d", labelNum++);
+
+	char* inst = nssave(5,  "\tj ", endLabel, "\n",
+							endLabel, ":"
+					   );
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
+
+	return labelNum;
+}

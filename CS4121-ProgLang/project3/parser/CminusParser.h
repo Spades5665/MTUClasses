@@ -98,7 +98,7 @@ extern int Cminus_debug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 93 "CminusParser.y"
+#line 94 "CminusParser.y"
 
 	char*	name;
 	int     symIndex;

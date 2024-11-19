@@ -28,6 +28,7 @@ EXTERN(void, Cminus_error, (char*));
 EXTERN(int, Cminus_lex, (void));
 
 char *fileName;
+int labelNum = 0;
 int globalOffset = 0;
 static int functionOffset;
 static char* functionName;
@@ -100,7 +101,7 @@ extern int Cminus_lineno;
 %type <idList> IdentifierList
 %type <symIndex> Expr SimpleExpr AddExpr
 %type <symIndex> MulExpr Factor Variable StringConstant Constant VarDecl FunctionDecl ProcedureHead
-%type <offset> DeclList
+%type <offset> DeclList Test TestAndThen
 %type <name> IDENTIFIER STRING FLOATCON INTCON 
 
 /***********************PRODUCTIONS****************************/
@@ -145,6 +146,7 @@ ProcedureHead: FunctionDecl DeclList
 FunctionDecl: Type IDENTIFIER LPAREN RPAREN LBRACE 
 				{
 					$$ = SymIndex(symtab, $2);
+					free($2);
 				}
 	      	;
 
@@ -160,6 +162,7 @@ DeclList 	: Type IdentifierList SEMICOLON
 					dlinkApply1($2, (DLinkApply1Func) addIdToSymtab, (Generic) data);
 					$$ = data->offset;
 					dlinkFreeNodes($2);
+					dlinkListFree($2);
 					
 					free(data);
 				}		
@@ -172,6 +175,7 @@ DeclList 	: Type IdentifierList SEMICOLON
 					dlinkApply1($3, (DLinkApply1Func) addIdToSymtab, (Generic) data);
 					$$ = data->offset;
 					dlinkFreeNodes($3);
+					dlinkListFree($3);
 
 					free(data);
 				}
@@ -192,12 +196,15 @@ IdentifierList: VarDecl
 VarDecl 	: IDENTIFIER
 				{ 
 					$$ = SymIndex(symtab, $1);
+					free($1);
 					SymPutFieldByIndex(symtab, $$, SYMTAB_OFFSET_FIELD, (Generic) 0);
 				}
 			| IDENTIFIER LBRACKET INTCON RBRACKET
 				{
 					$$ = SymIndex(symtab, $1);
+					free($1);
 					SymPutFieldByIndex(symtab, $$, SYMTAB_OFFSET_FIELD, (Generic) (atoi($3) - 1));
+					free($3);
 				}
 			;
 
@@ -221,13 +228,25 @@ Assignment  : Variable ASSIGN Expr SEMICOLON
             ;
 				
 IfStatement	: IF TestAndThen ELSE CompoundStatement
+				{
+					labelNum = emitIfEnd(instList, symtab, $2);
+				}
 			| IF TestAndThen
+				{
+					labelNum = emitIfEnd(instList, symtab, $2);
+				}
 			;
 				
 TestAndThen	: Test CompoundStatement
+				{
+					$$ = emitIfElse(instList, symtab, $1);
+				}
 			;
 				
 Test		: LPAREN Expr RPAREN
+				{
+					$$ = emitIfEvaluate(instList, symtab, $2, labelNum);
+				}
 			;	
 	
 WhileStatement: WhileToken WhileExpr Statement
@@ -356,6 +375,7 @@ Factor      : Variable
             | IDENTIFIER LPAREN RPAREN
 				{
 					$$ = SYM_INVALID_INDEX;
+					free($1);
 				}
          	| LPAREN Expr RPAREN
 				{
@@ -366,11 +386,13 @@ Factor      : Variable
 Variable    : IDENTIFIER
 				{
 					int symIndex = SymQueryIndex(symtab, $1);
+					free($1);
 					$$ = emitComputeVariableAddress(instList, symtab, symIndex);
 				}
             | IDENTIFIER LBRACKET Expr RBRACKET    
 				{
 					int symIndex = SymQueryIndex(symtab, $1);
+					free($1);
 					$$ = emitComputeArrayAddress(instList, symtab, symIndex, $3);
 				}
             ;			       
@@ -378,6 +400,7 @@ Variable    : IDENTIFIER
 StringConstant: STRING
 				{ 
 					int symIndex = SymIndex(symtab, $1);
+					free($1);
 					$$ = emitLoadStringConstantAddress(instList, dataList, symtab, symIndex); 
 				}
             ;
@@ -385,6 +408,7 @@ StringConstant: STRING
 Constant    :  INTCON
 				{ 
 					int symIndex = SymIndex(symtab, $1);
+					free($1);
 					$$ = emitLoadIntegerConstant(instList, symtab, symIndex); 
 				}
             ;
@@ -421,12 +445,16 @@ static void initialize(char* inputFileName) {
 
 	char* dotChar = rindex(inputFileName, '.');
 	int endIndex = strlen(inputFileName) - strlen(dotChar);
-	char *outputFileName = nssave(2, substr(inputFileName,0,endIndex), ".s");
+	char *sub = substr(inputFileName,0,endIndex);
+	char *outputFileName = nssave(2, sub, ".s");
+	free(sub);
 	stdout = freopen(outputFileName, "w", stdout);
 	if (stdout == NULL) {
 		fprintf(stderr, "Error: Could not open file %s\n", outputFileName);
+		free(outputFileName);
 		exit(-1);
 	} 
+	free(outputFileName);
 
 	initSymTable();
 	initRegisters();
@@ -444,6 +472,8 @@ static void finalize() {
     
     dlinkFreeNodesAndAtoms(instList);
     dlinkFreeNodesAndAtoms(dataList);
+	dlinkListFree(instList);
+	dlinkListFree(dataList);
 }
 
 int main(int argc, char** argv) {	

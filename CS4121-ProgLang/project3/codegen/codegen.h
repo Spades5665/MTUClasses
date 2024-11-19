@@ -55,6 +55,10 @@ EXTERN(int, emitLoadVariable,(DList instList, SymTable symtab, int varIndex));
 EXTERN(int, emitLoadIntegerConstant,(DList instList, SymTable symtab, int intIndex));
 EXTERN(int, emitLoadStringConstantAddress, (DList instList, DList dataList, SymTable symtab, int stringIndex));
 
+EXTERN(int, emitIfEvaluate, (DList instList, SymTable symtab, int regIndex, int labelNum));
+EXTERN(int, emitIfElse, (DList instList, SymTable symtab, int labelNum));
+EXTERN(int, emitIfEnd, (DList instList, SymTable symtab, int labelNum));
+
 EXTERN(void, addIdToSymtab,(DNode node,AddIdStructPtr data));
 
 #endif /*CODEGEN_H_*/
