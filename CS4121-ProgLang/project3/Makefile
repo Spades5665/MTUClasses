@@ -27,6 +27,7 @@ clean:
 		$(MAKE) -C $$dir clean; \
 	done
 	$(RM) $(TARGET)
+	rm input/*.s
 
 docs:
 	doxygen $(DOXYGEN_SRC)

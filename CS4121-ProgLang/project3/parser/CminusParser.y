@@ -101,7 +101,7 @@ extern int Cminus_lineno;
 %type <idList> IdentifierList
 %type <symIndex> Expr SimpleExpr AddExpr
 %type <symIndex> MulExpr Factor Variable StringConstant Constant VarDecl FunctionDecl ProcedureHead
-%type <offset> DeclList Test TestAndThen
+%type <offset> DeclList Test TestAndThen WhileExpr WhileToken
 %type <name> IDENTIFIER STRING FLOATCON INTCON 
 
 /***********************PRODUCTIONS****************************/
@@ -229,11 +229,11 @@ Assignment  : Variable ASSIGN Expr SEMICOLON
 				
 IfStatement	: IF TestAndThen ELSE CompoundStatement
 				{
-					labelNum = emitIfEnd(instList, symtab, $2);
+					emitIfEnd(instList, symtab, $2);
 				}
 			| IF TestAndThen
 				{
-					labelNum = emitIfEnd(instList, symtab, $2);
+					emitIfEnd(instList, symtab, $2);
 				}
 			;
 				
@@ -246,16 +246,28 @@ TestAndThen	: Test CompoundStatement
 Test		: LPAREN Expr RPAREN
 				{
 					$$ = emitIfEvaluate(instList, symtab, $2, labelNum);
+					labelNum += 2;
 				}
 			;	
 	
 WhileStatement: WhileToken WhileExpr Statement
+				{
+					emitWhileEnd(instList, symtab, $1, $2);
+				}
             ;
                 
 WhileExpr	: LPAREN Expr RPAREN
+				{
+					$$ = emitWhileEval(instList, symtab, $2, labelNum);
+					labelNum++;
+				}
 			;
 				
 WhileToken	: WHILE
+				{
+					$$ = emitWhileStart(instList, symtab, labelNum);
+					labelNum++;
+				}
 			;
 
 IOStatement : READ LPAREN Variable RPAREN SEMICOLON
@@ -474,6 +486,7 @@ static void finalize() {
     dlinkFreeNodesAndAtoms(dataList);
 	dlinkListFree(instList);
 	dlinkListFree(dataList);
+	Cminus_lex_destroy();
 }
 
 int main(int argc, char** argv) {	

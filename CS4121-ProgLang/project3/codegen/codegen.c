@@ -579,6 +579,9 @@ int emitComputeArrayAddress(DList instList, SymTable symtab, int varIndex, int a
 					 "\tadd ", resName, ", ", baseName, ", ", exprName
 				);
 	dlinkAppend(instList,dlinkNodeAlloc(inst));
+
+	freeIntegerRegister((int) SymGetFieldByIndex(symtab, baseIndex, SYMTAB_REGISTER_INDEX_FIELD));
+	freeIntegerRegister((int) SymGetFieldByIndex(symtab, arrayIndex, SYMTAB_REGISTER_INDEX_FIELD));
 	
 	return resIndex;
 	
@@ -641,6 +644,8 @@ int emitIfEvaluate(DList instList, SymTable symtab, int regIndex, int labelNum) 
 	char* inst = nssave(4, "\tbeq ", regName, ", $zero, ", elseLabel);
 	dlinkAppend(instList, dlinkNodeAlloc(inst));
 
+	freeIntegerRegister((int) SymGetFieldByIndex(symtab, regIndex, SYMTAB_REGISTER_INDEX_FIELD));
+
 	return labelNum;
 }
 
@@ -659,14 +664,49 @@ int emitIfElse(DList instList, SymTable symtab, int labelNum) {
 	return labelNum;
 }
 
-int emitIfEnd(DList instList, SymTable symtab, int labelNum) {
+void emitIfEnd(DList instList, SymTable symtab, int labelNum) {
 	char endLabel[10];
-	sprintf(endLabel, ".L%d", labelNum++);
+	sprintf(endLabel, ".L%d", labelNum);
 
 	char* inst = nssave(5,  "\tj ", endLabel, "\n",
 							endLabel, ":"
 					   );
 	dlinkAppend(instList, dlinkNodeAlloc(inst));
+}
+
+int emitWhileStart(DList instList, SymTable symtab, int labelNum) {
+	char startLabel[10];
+	sprintf(startLabel, ".L%d", labelNum);
+
+	char* inst = nssave(2, startLabel, ":");
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
 
 	return labelNum;
+}
+
+int emitWhileEval(DList instList, SymTable symtab, int regIndex, int labelNum) {
+	char* regName = (char*) SymGetFieldByIndex(symtab, regIndex, SYM_NAME_FIELD);
+
+	char endLabel[10];
+	sprintf(endLabel, ".L%d", labelNum);
+
+	char* inst = nssave(4, "\tbeq ", regName, ", $zero, ", endLabel);
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
+	
+	freeIntegerRegister((int) SymGetFieldByIndex(symtab, regIndex, SYMTAB_REGISTER_INDEX_FIELD));
+
+	return labelNum;
+}
+
+void emitWhileEnd(DList instList, SymTable symtab, int startNum, int endNum) {
+	char startLabel[10];
+	sprintf(startLabel, ".L%d", startNum);
+
+	char endLabel[10];
+	sprintf(endLabel, ".L%d", endNum);
+
+	char* inst = nssave(5,  "\tj ", startLabel, "\n",
+							endLabel, ":"
+					   );
+	dlinkAppend(instList, dlinkNodeAlloc(inst));
 }

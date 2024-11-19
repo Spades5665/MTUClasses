@@ -57,7 +57,11 @@ EXTERN(int, emitLoadStringConstantAddress, (DList instList, DList dataList, SymT
 
 EXTERN(int, emitIfEvaluate, (DList instList, SymTable symtab, int regIndex, int labelNum));
 EXTERN(int, emitIfElse, (DList instList, SymTable symtab, int labelNum));
-EXTERN(int, emitIfEnd, (DList instList, SymTable symtab, int labelNum));
+EXTERN(void, emitIfEnd, (DList instList, SymTable symtab, int labelNum));
+
+EXTERN(int, emitWhileStart, (DList instList, SymTable symtab, int labelNum));
+EXTERN(int, emitWhileEval, (DList instList, SymTable symtab, int regIndex, int labelNum));
+EXTERN(void, emitWhileEnd, (DList instList, SymTable symtab, int startNum, int endNum));
 
 EXTERN(void, addIdToSymtab,(DNode node,AddIdStructPtr data));
 

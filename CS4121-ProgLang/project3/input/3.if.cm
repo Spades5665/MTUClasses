@@ -1,5 +1,4 @@
 int a,b;
-int c[10];
 
 int main()
 {
@@ -12,5 +11,4 @@ int main()
 	    b = a;
 	    write(b);
        }
-	write(c[0]);
 }

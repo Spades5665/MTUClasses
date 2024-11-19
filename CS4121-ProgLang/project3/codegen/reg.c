@@ -34,6 +34,9 @@ void initRegisters() {
 	
 	allocatedIntegerRegisters = (bool*)malloc(sizeof(bool)*NUM_INTEGER_REGISTERS);
 	allocatedFloatRegisters = (bool*)malloc(sizeof(bool)*NUM_FLOAT_REGISTERS);
+
+	for (int i = 0; i < NUM_INTEGER_REGISTERS; i++) {allocatedIntegerRegisters[i] = false;}
+	for (int i = 0; i < NUM_FLOAT_REGISTERS; i++) {allocatedFloatRegisters[i] = false;}
 }
 
 bool isAllocatedIntegerRegister(int reg) {
