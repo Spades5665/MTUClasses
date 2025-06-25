@@ -1,0 +1,7 @@
+class: "EvalTest" 
+success: "findAlphabetLastWord(text) returned word that comes last alphabetically"
+failure: "findAlphabetLastWord(text) did not return word that comes last alphabetically"
+
+# A python expression to be evaluated.  This expression must return the 
+# same result for the student and instructor's code.
+test: "submission.findAlphabetLastWord(' '.join(str(x) for x in range(100000)))"
